@@ -1,0 +1,977 @@
+> use test
+switched to db test
+
+> db
+test
+
+> show dbs
+local  0.078GB
+
+> db.help()
+DB methods:
+        db.adminCommand(nameOrDocument) - switches to 'admin' db, and runs comma
+nd [ just calls db.runCommand(...) ]
+        db.auth(username, password)
+        db.cloneDatabase(fromhost)
+        db.commandHelp(name) returns the help for the command
+        db.copyDatabase(fromdb, todb, fromhost)
+        db.createCollection(name, { size : ..., capped : ..., max : ... } )
+        db.createUser(userDocument)
+        db.currentOp() displays currently executing operations in the db
+        db.dropDatabase()
+        db.eval() - deprecated
+        db.fsyncLock() flush data to disk and lock server for backups
+        db.fsyncUnlock() unlocks server following a db.fsyncLock()
+        db.getCollection(cname) same as db['cname'] or db.cname
+        db.getCollectionInfos()
+        db.getCollectionNames()
+        db.getLastError() - just returns the err msg string
+        db.getLastErrorObj() - return full status object
+        db.getLogComponents()
+        db.getMongo() get the server connection object
+        db.getMongo().setSlaveOk() allow queries on a replication slave server
+        db.getName()
+        db.getPrevError()
+        db.getProfilingLevel() - deprecated
+        db.getProfilingStatus() - returns if profiling is on and slow threshold
+        db.getReplicationInfo()
+        db.getSiblingDB(name) get the db at the same server as this one
+        db.getWriteConcern() - returns the write concern used for any operations
+ on this db, inherited from server object if set
+        db.hostInfo() get details about the server's host
+        db.isMaster() check replica primary status
+        db.killOp(opid) kills the current operation in the db
+        db.listCommands() lists all the db commands
+        db.loadServerScripts() loads all the scripts in db.system.js
+        db.logout()
+        db.printCollectionStats()
+        db.printReplicationInfo()
+        db.printShardingStatus()
+        db.printSlaveReplicationInfo()
+        db.dropUser(username)
+        db.repairDatabase()
+        db.resetError()
+        db.runCommand(cmdObj) run a database command.  if cmdObj is a string, tu
+rns it into { cmdObj : 1 }
+        db.serverStatus()
+        db.setLogLevel(level,<component>)
+        db.setProfilingLevel(level,<slowms>) 0=off 1=slow 2=all
+        db.setWriteConcern( <write concern doc> ) - sets the write concern for w
+rites to the db
+        db.unsetWriteConcern( <write concern doc> ) - unsets the write concern f
+or writes to the db
+        db.setVerboseShell(flag) display extra information in shell output
+        db.shutdownServer()
+        db.stats()
+        db.version() current version of the server
+
+> db.emp.insert({empid:101,ename:"siva",desg:"analyst",salary:12345})
+WriteResult({ "nInserted" : 1 })
+
+> db.emp.save({empid:101,ename:"Siva Kumar",desg:"TL",salary:123456,addr:"ABC"})
+;
+WriteResult({ "nInserted" : 1 })
+> db.emp.find().pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({desg: "TL"}).pretty;
+function (){
+    this._prettyShell = true;
+    return this;
+}
+> db.emp.find({desg: "TL"}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({addr: "ABC"}).pretty();
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({desg:"TL"}, {ename:1,salary:1,_id:0}).pretty();
+{ "ename" : "Siva Kumar", "salary" : 123456 }
+{ "ename" : "Siva Kumar", "salary" : 123456 }
+> db.emp.find({desg:"TL"}, {ename:1,salary:1}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+> db.emp.find({desg:"TL"}, {ename:1}).pretty();
+{ "_id" : ObjectId("558cd6c57047425f6fa57998"), "ename" : "Siva Kumar" }
+{ "_id" : ObjectId("558cd7357047425f6fa57999"), "ename" : "Siva Kumar" }
+> db.emp.find({desg:"TL"}, {ename:1,_id:0}).pretty();
+{ "ename" : "Siva Kumar" }
+{ "ename" : "Siva Kumar" }
+> db.emp.find({}, {ename:1,salary:1}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "ename" : "siva",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "ename" : "vijay",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+> db.emp.find({}, {ename:1,salary:1,_id:0}).pretty();
+{ "ename" : "siva", "salary" : 12345 }
+{ "ename" : "vijay", "salary" : 23456 }
+{ "ename" : "Siva Kumar", "salary" : 123456 }
+{ "ename" : "Siva Kumar", "salary" : 123456 }
+> db.emp.findOne({desg:"tl"});
+null
+> db.emp.findOne({desg:"TL"});
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+> db.emp.find({salary: {"$gte" : 1234, "$lte" : 1000000}}).pretty()
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find(
+Display all 186 possibilities? (y or n)
+> db.emp.find(
+... y
+... )
+2015-06-26T10:29:50.070+0530 E QUERY    ReferenceError: y is not defined
+    at (shell):2:1
+> db.emp.find({desg:"analyst"}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+> db.emp.find({desg:{"$ne": "analyst"}).pretty();
+...
+... ^C
+
+> db.emp.find({desg:{$ne: "analyst"}).pretty();
+... ^C
+
+> db.emp.find({desg:{$ne : "analyst"}}).pretty();
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({salary: {$in: [123,1000000]}}).pretty();
+> db.emp.find({salary: {$in: [123456,1000000]}}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({desg: {$nin: ["analyst","trainer"]}}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({$or: [{empid:101},{desg: "analyst"}]}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({$or:[{salary:{$gte:1234,$lte:1000000}},{desg:{$in:["analyst","TL"
+]}}]}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({salary:{$not:{$gt:100000}}}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+> db.emp.find({desg:"analyst"}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+> db.emp.find({desg:{"$ne": "analyst"}).pretty();
+...
+... ^C
+
+> db.emp.find({desg:{$ne: "analyst"}).pretty();
+... ^C
+
+> db.emp.find({desg:{$ne : "analyst"}}).pretty();
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({salary: {$in: [123,1000000]}}).pretty();
+> db.emp.find({salary: {$in: [123456,1000000]}}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({desg: {$nin: ["analyst","trainer"]}}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({$or: [{empid:101},{desg: "analyst"}]}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({$or:[{salary:{$gte:1234,$lte:1000000}},{desg:{$in:["analyst","TL"
+]}}]}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({salary:{$not:{$gt:100000}}}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+> db.emp.insert({empid:103,ename:"sai",desg:"ASC",salary:null})
+WriteResult({ "nInserted" : 1 })
+> db.emp.find();
+{ "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"), "empid" : 101, "ename" : "siva",
+ "desg" : "analyst", "salary" : 12345 }
+{ "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"), "empid" : 102, "ename" : "vijay"
+, "desg" : "trainer", "salary" : 23456 }
+{ "_id" : ObjectId("558cd6c57047425f6fa57998"), "empid" : 101, "ename" : "Siva K
+umar", "desg" : "TL", "salary" : 123456 }
+{ "_id" : ObjectId("558cd7357047425f6fa57999"), "empid" : 101, "ename" : "Siva K
+umar", "desg" : "TL", "salary" : 123456, "addr" : "ABC" }
+{ "_id" : ObjectId("558ce1af7047425f6fa5799a"), "empid" : 103, "ename" : "sai",
+"desg" : "ASC", "salary" : null }
+> db.emp.find({salary: null})
+{ "_id" : ObjectId("558ce1af7047425f6fa5799a"), "empid" : 103, "ename" : "sai",
+"desg" : "ASC", "salary" : null }
+> db.emp.find({salary: null}).pretty();
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+> db.emp.find({salary:{$in[null],$exists:true}}).pretty();
+2015-06-26T10:55:02.741+0530 E QUERY    SyntaxError: Unexpected token [
+> db.emp.find({salary:{$in:[null],$exists:true}}).pretty();
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+> db.emp.find({ename: /a$/}).pretty()
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+> db.emp.find({ename: /L$/}).pretty()
+> db.emp.find({ename: /r$/}).pretty()
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({ename: /^s/}).pretty()
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+> db.emp.find({ename: {$regex: 'm.*',$options: 'i'}}).pretty();
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+> db.emp.find({ename: {$regex: 'i.*',$options: 'i'}}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+> db.emp.count();
+5
+> db.emp.count({desg: 'TL"}));
+2015-06-26T11:48:59.131+0530 E QUERY    SyntaxError: Unexpected token ILLEGAL
+> db.emp.count({desg: 'TL"});
+2015-06-26T11:49:05.368+0530 E QUERY    SyntaxError: Unexpected token ILLEGAL
+> db.emp.count({desg: "TL"});
+2
+> db.emp.find().limit(3).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+> db.emp.find().sort({desg:1,salary:-1}).pretty();
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "empid" : 101,
+        "ename" : "siva",
+        "desg" : "analyst",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+> db.emp.find().skip(3).pretty(0);
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456,
+        "addr" : "ABC"
+}
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "empid" : 103,
+        "ename" : "sai",
+        "desg" : "ASC",
+        "salary" : null
+}
+> db.emp.find().skip(1).limit(2).pretty();
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "empid" : 102,
+        "ename" : "vijay",
+        "desg" : "trainer",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "empid" : 101,
+        "ename" : "Siva Kumar",
+        "desg" : "TL",
+        "salary" : 123456
+}
+> DBQuery.shellBatchSize = 3
+3
+> db.emp.find({},{ename:1,salary:1}).pretty();
+{
+        "_id" : ObjectId("558bdb39fa530c48ac4cb6c4"),
+        "ename" : "siva",
+        "salary" : 12345
+}
+{
+        "_id" : ObjectId("558bdb92fa530c48ac4cb6c5"),
+        "ename" : "vijay",
+        "salary" : 23456
+}
+{
+        "_id" : ObjectId("558cd6c57047425f6fa57998"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+Type "it" for more
+> it
+{
+        "_id" : ObjectId("558cd7357047425f6fa57999"),
+        "ename" : "Siva Kumar",
+        "salary" : 123456
+}
+{
+        "_id" : ObjectId("558ce1af7047425f6fa5799a"),
+        "ename" : "sai",
+        "salary" : null
+}
+> db.tech.insert({_id:1,name:"Siva",skills:["Java","Hadoop","Saprk","HDFS","MapR
+educe"]});
+WriteResult({ "nInserted" : 1 })
+> db.tech.insert({_id:2,name:"Sai",skills:["BI","TeraData","Saprk","HDFS","MapRe
+duce"]});
+WriteResult({ "nInserted" : 1 })
+> db.tech.insert({_id:3,name:"Madhu",skills:["BI","Apache Pig","Big Insights","H
+DFS","MapReduce"]});
+WriteResult({ "nInserted" : 1 })
+> db.tech.insert({_id:4,name:"Vijay",skills:["BI","ETL","Java","Nettezza"]});
+WriteResult({ "nInserted" : 1 })
+> db.tech.insert({_id:5,name:"Ramesh",skills:["Java,"BI","J2EE","Spring","HBASE"
+]});
+2015-06-26T12:19:58.758+0530 E QUERY    SyntaxError: Unexpected identifier
+> db.tech.insert({_id:5,name:"Ramesh",skills:["Java","BI","J2EE","Spring","HBASE
+"]});
+WriteResult({ "nInserted" : 1 })
+> db.tech.find().pretty();
+{
+        "_id" : 1,
+        "name" : "Siva",
+        "skills" : [
+                "Java",
+                "Hadoop",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 2,
+        "name" : "Sai",
+        "skills" : [
+                "BI",
+                "TeraData",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 3,
+        "name" : "Madhu",
+        "skills" : [
+                "BI",
+                "Apache Pig",
+                "Big Insights",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+Type "it" for more
+> it
+{
+        "_id" : 4,
+        "name" : "Vijay",
+        "skills" : [
+                "BI",
+                "ETL",
+                "Java",
+                "Nettezza"
+        ]
+}
+{
+        "_id" : 5,
+        "name" : "Ramesh",
+        "skills" : [
+                "Java",
+                "BI",
+                "J2EE",
+                "Spring",
+                "HBASE"
+        ]
+}
+> DBQuery.shellBatchSize = 100
+100
+> db.tech.find({skills: {$all : ["Java","HDFS"]}}).pretty();
+{
+        "_id" : 1,
+        "name" : "Siva",
+        "skills" : [
+                "Java",
+                "Hadoop",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+> db.tech.find({skills: {$all : ["Java","BI"]}}).pretty();
+{
+        "_id" : 4,
+        "name" : "Vijay",
+        "skills" : [
+                "BI",
+                "ETL",
+                "Java",
+                "Nettezza"
+        ]
+}
+{
+        "_id" : 5,
+        "name" : "Ramesh",
+        "skills" : [
+                "Java",
+                "BI",
+                "J2EE",
+                "Spring",
+                "HBASE"
+        ]
+}	
+> db.tech.find({"skills.1": "BI"}).pretty();
+{
+        "_id" : 5,
+        "name" : "Ramesh",
+        "skills" : [
+                "Java",
+                "BI",
+                "J2EE",
+                "Spring",
+                "HBASE"
+        ]
+}
+> db.tech.find({"skills.2": "BI"}).pretty();
+> db.tech.find({"skills.3": "BI"}).pretty();
+> db.tech.find({"skills.4": "BI"}).pretty();
+> db.tech.find({"skills.5": "BI"}).pretty();
+> db.tech.find({"skills.0": "BI"}).pretty();
+{
+        "_id" : 2,
+        "name" : "Sai",
+        "skills" : [
+                "BI",
+                "TeraData",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 3,
+        "name" : "Madhu",
+        "skills" : [
+                "BI",
+                "Apache Pig",
+                "Big Insights",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 4,
+        "name" : "Vijay",
+        "skills" : [
+                "BI",
+                "ETL",
+                "Java",
+                "Nettezza"
+        ]
+}
+> db.tech.find({skills : {$size : 3}}).pretty();
+> db.tech.find({skills : {$size : 4}}).pretty();
+{
+        "_id" : 4,
+        "name" : "Vijay",
+        "skills" : [
+                "BI",
+                "ETL",
+                "Java",
+                "Nettezza"
+        ]
+}
+> db.tech.find({skills : {$size : 5}}).pretty();
+{
+        "_id" : 1,
+        "name" : "Siva",
+        "skills" : [
+                "Java",
+                "Hadoop",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 2,
+        "name" : "Sai",
+        "skills" : [
+                "BI",
+                "TeraData",
+                "Saprk",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 3,
+        "name" : "Madhu",
+        "skills" : [
+                "BI",
+                "Apache Pig",
+                "Big Insights",
+                "HDFS",
+                "MapReduce"
+        ]
+}
+{
+        "_id" : 5,
+        "name" : "Ramesh",
+        "skills" : [
+                "Java",
+                "BI",
+                "J2EE",
+                "Spring",
+                "HBASE"
+        ]
+}
