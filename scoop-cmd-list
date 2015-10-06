@@ -1,0 +1,506 @@
+mysql --user=hiveuser --password=1234
+
+create database products;
+
+use products;
+
+CREATE TABLE IF NOT EXISTS products (
+	productID INT,
+	productCode CHAR(3),
+	name VARCHAR(30),
+	quantity INT,
+	price DECIMAL(7,2),
+	PRIMARY KEY (productID)
+	);
+
+INSERT INTO products VALUES (1001, 'PEN', 'Pen Red', 5000, 1.23);
+INSERT INTO products VALUES (1002, 'PEN', 'Pen Blue', 8000, 1.25);
+INSERT INTO products VALUES (1003, 'PEN', 'Pen Black', 2000, 1.25);
+INSERT INTO products VALUES (1004, 'PEC', 'Pencil 2B', 10000, 0.48);
+INSERT INTO products VALUES (1005, 'PEC', 'Pencil 2H', 8000, 0.49);
+INSERT INTO products VALUES (1006, 'PEC', 'Pencil HB', 0, 9999.99);
+
+create database employee;
+
+use employee;
+
+CREATE TABLE employee (
+	empno INT,
+	deptno INT,
+	empname VARCHAR(20),
+	designation VARCHAR(20),
+	PRIMARY KEY(empno),
+	FOREIGN KEY(deptno)
+	REFERENCES department(deptno)
+	);
+
+INSERT INTO employee VALUES (101, 1001, 'John', 'Manager');
+INSERT INTO employee VALUES (102, 1002, 'James', 'Employee');
+INSERT INTO employee VALUES (103, 1001, 'Jack', 'Manager');
+INSERT INTO employee VALUES (104, 1001, 'Smith', 'null');
+INSERT INTO employee VALUES (105, 1002, 'null', 'Manager');
+
+CREATE TABLE department (
+	deptno INT,
+	deptname VARCHAR(20),
+	PRIMARY KEY(deptno)
+	);
+
+INSERT INTO department VALUES (1001, 'Sales');
+INSERT INTO department VALUES (1002, 'Finance');
+
+Sqoop Commands:
+--------------
+1. List databases:
+-----------------
+
+sqoop list-databases \
+--connect jdbc:mysql://localhost:3306  \
+--username hiveuser  \
+--password password \
+
+sqoop list-databases --connect jdbc:mysql://localhost/
+
+2. List Tables:
+--------------
+
+sqoop list-tables \
+--connect jdbc:mysql://localhost:3306 \
+--username hiveuser \
+--password password \
+
+sqoop list-tables --connect jdbc:mysql://localhost/
+
+3. Importing a table into HDFS - basic import
+---------------------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+-m 1 \
+--target-dir /here/is/the/dir
+
+Note:
+----
+-m argument is to specify number of mappers
+--target-dir is to specify the target-dir
+
+4. Import all columns, filter rows using where clause:
+-----------------------------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--where "productID > 1003" \
+--as-textfile \
+-m 1 \
+--target-dir /here/is/the/dir/productsfilter
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--where "productID > 1003" \
+--as-sequencefile \
+-m 1 \
+--target-dir /here/is/the/dir/productssequence
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--where "productID > 1003" \
+--as-avrodatafile \
+-m 1 \
+--target-dir /here/is/the/dir/productsavro
+
+5. Import with a free form query without where clause:
+-----------------------------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+-m 1 \
+--target-dir /here/is/the/dir/productsquery
+
+Note: Coloumn names used are case-sensitive as per table or else import fails
+
+6. Import with a free form query with where clause:
+--------------------------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where productID < 1003 AND $CONDITIONS' \
+-m 1 \
+--target-dir /here/is/the/dir/productsqueryfilter
+
+7. Director Connector:
+---------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where productID < 1004 AND $CONDITIONS' \
+-m 1 \
+--direct \
+--target-dir /here/is/the/dir/productsdirect
+
+8. Split By:
+-----------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+--split-by productID \
+-m 1 \
+--target-dir /here/is/the/dir/productssplit
+
+9. Boundary Query:
+-----------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+--fetch-size=50000 \
+--split-by productID \
+--direct \
+-m 1 \
+--target-dir /here/is/the/dir/productsqueryfetch
+
+10. Compression:
+---------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+-z \
+--split-by productID \
+--direct \
+-m 1 \
+--target-dir /here/is/the/dir/productscompression
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--compress \
+--target-dir /here/is/the/dir/productscom
+
+11. Incremental imports: Preparation:
+------------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where productID < 1004 AND $CONDITIONS' \
+--split-by productID \
+--direct \
+--target-dir /here/is/the/dir/productsincrement
+
+Run the incremental import:
+--------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+--check-column productID \
+--incremental append \
+--last-value 1005 \
+--split-by productID \
+--direct \
+--target-dir /here/is/the/dir/productsincrement1
+
+Last Update:
+-----------
+
+UPDATE employee SET empname = 'Joshi' WHERE empno = 105;
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--incremental lastmodified \
+--check-column Last_update_date \
+--last-value "2014-09-14 12:14:28"
+
+12. Output line formatting options:
+----------------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+--fields-terminated-by , \
+--escaped-by \\ \
+--enclosed-by '\"' \
+--split-by productID \
+--direct \
+--target-dir /here/is/the/dir/outputformat
+
+13. Import all tables:
+---------------------
+
+sqoop import-all-tables \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+
+sqoop import-all-tables \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--exclude-table products \
+
+14. Direct and quick queries/inserts/updates with sqoop eval:
+------------------------------------------------------------
+
+Query:
+-----
+
+sqoop eval \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--query "select * from products limit 2" \
+
+Insert:
+------
+
+sqoop eval \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--e "insert into products values(1007, 'PEC', 'Pencil NB', 0, 99.99)" \
+
+15. Overriding Type Mapping:
+---------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--map-column-java productID=Long \
+--target-dir /here/is/the/dir/productstypeoverride
+
+16. Encoding NULL values:
+------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--null-string '\\N' \
+--null-non-string '\\N' \
+--target-dir /here/is/the/dir/productsnull
+
+Note:
+----
+Sqoop, by default imports the null values with string null as output.
+
+So any record having null in data would be shown like below in HDFS
+|N|null|Jagan Mohan|Hadoop
+
+The issue with such kind of import is that we cannot write hive queries
+like, show me all records where the column is not null.
+
+To know better we should keep in mind that the Hive default
+representaion for null is
+
+\N
+
+so to make Hive treat the record as null should be imported as \N
+
+17. Joining Two Tables:
+----------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table products \
+--query 'selct productID, productCode, name, quantity, price from products where $CONDITIONS' \
+--split-by empno \
+--target-dir /here/is/the/dir/joinsdemo
+
+MySQL => Works Perfectly
+------------------------
+
+SELECT e.empno, e.empname, e.designation, d.deptname FROM
+employee as e JOIN department d on e.deptno = d.deptno;
+
+18. Import from mysql into Hive:
+-------------------------------
+
+CREATE database department;
+
+USE department;
+
+CREATE TABLE department (
+	dept_no INT,
+	dept_name VARCHAR(20),
+	PRIMARY KEY(dept_no)
+	);
+
+INSERT INTO department VALUES (1, 'Customer Service');
+INSERT INTO department VALUES (2, 'Development');
+INSERT INTO department VALUES (3, 'Finance');
+INSERT INTO department VALUES (4, 'Human Resources');
+INSERT INTO department VALUES (5, 'Marketing');
+INSERT INTO department VALUES (6, 'Production');
+
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table department \
+--direct
+-m 1\
+--hive-import \
+--create-hive-table \
+--hive-table depart_mysql_example
+
+Validating:
+----------
+
+hive> select * from depart_mysql_example;
+
+Sqoop Export:
+------------
+1. Export data from HDFS to MySQL:
+---------------------------------
+
+CREATE DATABASE empinfo;
+
+USE empinfo;
+
+CREATE TABLE employee (
+	empno INT,
+	deptno INT,
+	empname VARCHAR(20),
+	designation VARCHAR(20)
+	);
+
+INSERT INTO employee VALUES (101, 1001, 'John', 'Manager');
+INSERT INTO employee VALUES (102, 1002, 'James', 'Employee');
+INSERT INTO employee VALUES (103, 1001, 'Jack', 'Manager');
+INSERT INTO employee VALUES (104, 1001, 'Smith', 'null');
+INSERT INTO employee VALUES (105, 1001, 'null', 'Manager');
+
+Create Export Table:
+-------------------
+
+CREATE TABLE employee_export (
+	empno INT,
+	deptno INT,
+	empname VARCHAR(20),
+	designation VARCHAR(20)
+	);
+
+INSERT INTO employee_export VALUES (106, 1001, 'Susan', 'Employee');
+INSERT INTO employee_export VALUES (107, 1002, 'Jerold', 'Manager');
+
+Import some data into HDFS:
+--------------------------
+
+sqoop import \
+--connect jdbc:mysql://localhost:3306/products \
+--username hiveuser \
+--password password \
+--table employee \
+-m 1 \
+--target-dir /here/is/the/dir/employee
+
+1. Export in insert mode
+------------------------
+
+sqoop export \
+--connect jdbc:mysql://localhost:3306/empinfo \
+--username hiveuser \
+--password password \
+--table employee_export \
+--export-dir /dir/in/somewher/
+
+sqoop export \
+-Dsqoop.export.records.per.statement=2 \
+--connect jdbc:mysql://localhost:3306/empinfo \
+--username hiveuser \
+--password password \
+--table employee_export \
+--export-dir /dir/in/somewher/exp1
+
+sqoop export \
+-Dsqoop.export.records.per.transaction=2 \
+--connect jdbc:mysql://localhost:3306/empinfo \
+--username hiveuser \
+--password password \
+--table employee_export \
+--export-dir /dir/in/somewher/
+
+2. Export in update mode:
+------------------------
+
+UPDATE employee_export SET empname = 'Lakshita' WHERE empno = 105;
+
+sqoop export \
+--connect jdbc:mysql://localhost:3306/empinfo \
+--username hiveuser \
+--password password \
+--table employee_export \
+--direct \
+--update-key empno \
+--update-mode updateonly \
+--export-dir /dir/in/somewher/
+
+3. Export into a subset of columns:
+----------------------------------
+
+sqoop export \
+--connect jdbc:mysql://localhost:3306/empinfo \
+--username hiveuser \
+--password password \
+--table employee_export \
+--export-dir /dir/in/somewher/
+--columns empno,empname
+
+
