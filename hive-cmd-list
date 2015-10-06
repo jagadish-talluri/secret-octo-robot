@@ -1,0 +1,454 @@
+Hadoop dfs commands:
+================
+hive> dfs -ls /sample
+
+Comments in Hive:
+=============
+-- This is script
+
+To create database:
+=============
+create database student;
+
+To suppress already existing database warnings:
+=================================
+create database IF NOT EXISTS student;
+
+Note: You can also use the keyword SCHEMA instead of database.
+
+To see databases:
+============
+Show databases;
+
+To restrict the database display using regular expression:
+=======================================
+show databases LIKE 's.*';
+
+To override the default location of database directory:
+======================================
+create database student LOCATION '/studentinfo';
+
+To add comment for database:
+=====================
+create database student comment 'Holds all student tables';
+
+To describe database:
+===============
+describe database student;
+
+To associate key-value properties with the database:
+======================================
+create database student_info WITH DBPROPERTIES ('creator' = 'subhashini' , 'date' = '2014-12-01');
+
+describe database EXTENDED student_info;
+
+Use command:
+===========
+use student;
+
+To drop database:
+=============
+drop database if exists student;
+
+To drop database if it contains tables:
+==========================
+drop database IF EXISTS student CASCADE;
+
+To Alter Database:
+=============
+alter database student   SET DBPROPERTIES ('edited-by' = 'Subha');
+
+Tables in Hive:
+==========
+student.txt
+=======
+AAA,60.5,I
+BBB,70.5,I
+CCC,80.5,I
+DDD,50.5,II
+EEE,55.5,II
+
+Managed Table:
+===========
+create table IF NOT EXISTS student (name STRING COMMENT 'Student Name', percentage FLOAT, grade STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+External Table:
+==========
+create EXTERNAL table IF NOT EXISTS student (name STRING COMMENT 'Student Name', percentage FLOAT, grade STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION '/studentinfo';
+
+Loading Data to Hive Tables:
+=====================
+LOAD DATA INPATH '/root/subha/student.txt' INTO TABLE student;
+
+LOAD DATA LOCAL INPATH '/root/subha/student.txt' INTO TABLE student;
+
+Complex Data Types:
+===============
+emp.txt
+======
+John Doe,100000.0, Mary Smith:Todd Jones,Federal Taxes!.2: StateTaxes! .05: Insurance!.1 
+Jose Dove,100000.0,Mary Smith:Todd Jones,Federal Taxes!.2:StateTaxes!.06:Insurance!.1
+
+create table employee (name String, salary FLOAT, sub ARRAY<STRING>,deductions MAP<STRING,FLOAT>) 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+COLLECTION ITEMS TERMINATED BY ':'   
+MAP KEYS TERMINATED BY '!';
+
+describe employee;
+
+LOAD DATA LOCAL INPATH '/root/subha/emp.txt' INTO TABLE employee;
+
+select * from employee;
+
+select name, sub from employeedetails;
+
+select name, deductions from empdetails;
+
+select name, deductions['Federal Taxes']  from employeedetails;
+
+Order by and Sort by:
+===============
+employee.txt
+==========
+1001,AAA,20000,TVM
+1002,BBB,30000,TVM
+1003,CCC,50000,BNG
+
+1. Create table employee.
+2. Load Data.
+
+SELECT s.empno, s.empname,s.empsal,s.emploc                    
+FROM emplocatoins s
+ORDER BY s.empname ASC , s.emploc DESC;
+
+Partition Table:
+===========
+Static Partition:
+============
+CREATE TABLE Pstudent(name STRING COMMENT 'Student Name', percentage FLOAT, grade STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INPATH '/root/subha/student.txt' INTO TABLE Pstudent;
+
+CREATE TABLE student_sp(name STRING COMMENT 'Student Name', percentage FLOAT)
+PARTITIONED BY (grade STRING);
+
+INSERT OVERWRITE TABLE student_sp
+PARTITION (grade='I')
+select name,percentage from Pstudent
+where grade='I';
+
+show partitions student_sp;
+
+Dynamic Partition:
+==============
+CREATE TABLE student_dp(name STRING COMMENT 'Student Name', percentage FLOAT)
+PARTITIONED BY (grade STRING);
+
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+INSERT OVERWRITE TABLE student_dp
+PARTITION (grade)
+select name,percentage,grade from Pstudent;
+
+alter table <<table name>> add partition <<columnname>>
+
+Drop Table:
+========
+Drop table [IF EXISTS] student;
+
+Buckets:
+======
+page_views.txt
+==========
+1,1111,http://example.com/page/1,23-5-2002
+2,2222,http://example.com/page/1,24-5-2002
+3,3333,http://example.com/page/1,25-5-2002
+4,4444,http://example.com/page/1,26-5-2002
+5,5555,http://example.com/page/1,27-5-2002
+6,6666,http://example.com/page/1,28-5-2002
+7,7777,http://example.com/page/1,29-5-2002
+8,8888,http://example.com/page/1,21-5-2002
+9,9999,http://example.com/page/1,11-5-2002
+10,10001,http://example.com/page/1,12-5-2002
+22,6578,http://example.com/page/1,14-5-2002
+23,6432,http://example.com/page/1,16-5-2002
+63,2341,http://example.com/page/1,18-5-2002
+
+CREATE TABLE page_views(user_id INT,session_id BIGINT,url STRING, day STRING)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INPATH '/root/subha/page_views.txt' INTO TABLE page_views;
+
+create table page_views_p(user_id INT,session_id BIGINT,url STRING)
+PARTITIONED BY (day STRING)
+CLUSTERED BY (user_id) INTO 10 BUCKETS;
+
+SET hive.exec.dynamic.partition = true;
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+
+INSERT OVERWRITE TABLE page_views_p
+PARTITION (day)
+select user_id,session_id,url,day from page_views;
+
+show partitions page_views_p;
+
+
+File Format:
+========
+
+RCFILE Format:  [Provides Column Oriented Database Features]
+============
+store data in Hadoop file system in column-oriented format using RCFile.
+
+CREATE TABLE USER_RC(
+  empno int,
+  empname string,
+  salary int,
+  loc string
+  )
+STORED AS RCFILE;
+
+CREATE TABLE USER_TEXT(
+  empno int,
+  empname string,
+  salary int,
+  loc string
+  )
+ROW FORMAT DELIMITED fields terminated by ',';
+
+load data local inpath '/root/subha/emp.txt' into table USER_TEXT;
+
+INSERT OVERWRITE table USER_RC SELECT * from USER_TEXT;
+
+select sum(salary) from USER_RC;
+
+SequenceFile Format:
+================
+This is a key/value binary format with compression capabilities.
+
+support block and record level compression that helps in minimal disk storage utilization and I/O 
+reads and writes, which ultimately improves performance.
+
+num.txt:
+=====
+1
+2
+3
+4
+5
+
+create table seqfile_table (x int) stored as sequencefile;
+
+CREATE TABLE seq(x int)
+ROW FORMAT DELIMITED fields terminated by ',';
+
+load data local inpath '/root/subha/seq.txt' into table seq;
+
+insert into table seqfile_table select x from seq;
+
+select * from seqfile_table;
+
+Sub Query:
+=======
+CREATE TABLE docs (line STRING);
+
+LOAD DATA LOCAL INPATH '/root/subha/docs.txt' OVERWRITE INTO TABLE docs;
+
+CREATE TABLE word_count AS
+SELECT word, count(1) AS count FROM
+(SELECT explode (split (line, ' ')) AS word FROM docs) w
+GROUP BY word
+ORDER BY word;
+
+explode() takes in an array (or a map) as an input and outputs the elements of the array (map) as separate rows.
+
+Select * from word_count;
+
+Joins:
+====
+Inner Join:
+========
+  
+--Only matching condition records get selected and all other records are discarded.
+
+Order.txt:
+=======
+1,11
+2,22
+3,33
+4,44
+5,55
+
+Customer.txt:
+==========
+11,Alec
+22,James
+44,Meera
+66,Mark
+
+Create table if not exists order (order_id int,customer_id int)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH '/root/subha/order.txt' INTO TABLE order;
+
+Create table if not exists customer (customer_id int,customer_name String)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE;
+
+LOAD DATA LOCAL INPATH '/root/subha/customer.txt' INTO TABLE customer;
+
+Select o.order_id,c.customer_name from order o
+JOIN
+customer c
+ON (o.customer_id = c.customer_id);
+
+Outer Joins:
+========
+Retrieve all records from one table and some records from another table.
+
+-- Retain all records from the right side  
+
+Select o.order_id,c.customer_name from order o
+RIGHT OUTER JOIN
+customer c
+ON (o.customer_id = c.customer_id);
+
+-- Retain all records from the left side
+ 
+Select o.order_id,c.customer_name from order o
+LEFT OUTER JOIN
+customer c
+ON (o.customer_id = c.customer_id);
+
+--Include all fields from both tables and the NULL values
+
+Select o.order_id,c.customer_name from order o
+FULL OUTER JOIN
+customer c
+ON (o.customer_id = c.customer_id);
+
+Aggregation:
+=========
+count(*)
+sum(col)
+avg(col)
+min(col)
+max(col)
+
+Creating Views:
+===========
+view support is available only in version starting from 0.6. views are purely logical object.
+ 	 
+Creating View:
+==========
+CREATE VIEW employee_view AS SELECT empName,salary FROM employee;
+Selecting From View:
+===============
+SELECT * FROM employee_view ;
+Dropping View:
+=========== 
+DROP VIEW employee_view ;
+
+Index:
+====
+build an index on columns to speed some operations.
+
+creates a seperate table for index.
+
+create table employee(empno int,empname string);
+
+CREATE INDEX emp_index 
+ON TABLE employee(empno) 
+AS 'org.apache.hadoop.hive.ql.index.compact.CompactIndexHandler'
+WITH DEFERRED REBUILD;
+
+WITH DEFERRED REBUILD portion of the command prevents the index from immediately being built.
+
+CompactIntexHandler ==> a Java class that implements indexing.
+ 
+To build the index you can issue the following command:
+=========================================
+ALTER INDEX emp_index 
+ON employee
+REBUILD;
+
+describe <<databasename>_<<tablename>>_<<index_name>>_;
+
+SHOW FORMATTED INDEX ON employee;
+
+DROP INDEX IF EXISTS emp_index ON TABLE employee;
+
+SerDer:
+=====
+Serializer/Deserializer.
+Holds the logic to convert unstructured data into records.
+Implemented using Java.
+Serializers are used while writing data and Deserializers are used at query time to execute SELECT statements.
+Deserializer interface takes a string or binary representation of a record, and translates it into a Java object that Hive can manipulate.
+Serializer, however, will take a Java object that Hive has been working with, and turn it into something that Hive can write to HDFS.
+
+
+1. Load XML file into Hive.
+
+input.xml
+=======
+<employee> <userid>1</userid> <name>Puneetha B M</name> <designation>Developer</designation> </employee>
+<employee> <userid>2</userid> <name>Bhoomika</name> <designation>Analyst</designation> </employee>
+
+create table xmlsample(xmldata string);
+
+load data local inpath '/root/subha/input.xml' into table xmlsample;
+
+CREATE TABLE xpath_table AS
+SELECT xpath_int(xmldata,'employee/userid'),
+xpath_string(xmldata,'employee/name'),
+xpath_string(xmldata,'employee/designation')
+FROM xmlsample;
+
+select * from xpath_table;
+==============================================
+UDF:
+====
+Write Java Program and convert it into jar
+
+package com.example.hive.udf;
+
+import org.apache.hadoop.hive.ql.exec.Description;
+import org.apache.hadoop.hive.ql.exec.UDF;
+
+@Description(
+  name="SimpleUDFExample")
+ public final class MyUpperCase extends UDF {
+   public String evaluate(final String word) {
+    return word.toUpperCase();
+  }
+}
+2. Go to Hive Prompt
+3. ADD JAR /root/subha/UpperCase.jar;
+4. CREATE TEMPORARY FUNCTION touppercase AS 'com.example.hive.udf.MyUpperCase';
+5. Select touppercase(url) from page_views;
+
+Hive’s default record and field delimiters:
+==============================
+Delimiter 		Description
+\n 		For text files, each line is a record, so the line feed character separates records.
+^A 		(“control” A) Separates all fields (columns). Written using the octal code \001 when explicitly
+		specified in CREATE TABLE statements.
+^B 		Separate the elements in an ARRAY or STRUCT, or the key-value pairs in a MAP.
+		Written using the octal code \002 when explicitly specified in CREATE TABLE statements.
+^C 		Separate the key from the corresponding value in MAP key-value pairs. Written using
+		the octal code \003 when explicitly specified in CREATE TABLE statements.
+
