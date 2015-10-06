@@ -1,0 +1,343 @@
+HBase:
+-----
+
+Show cluster status:
+
+> status
+> status 'simple'
+> status 'summary'
+> status 'detailed'
+
+Show version:
+
+> version
+
+Show hbase user:
+
+> whoami
+
+Table Management:
+----------------
+
+-- attributes of column family are called together as DICTIONARY
+		like {NAME='f2', VERSIONS => 5}
+
+Alter:
+
+-- add f1 CF in t1 TBL
+
+> alter 't1', NAME => 'f1', VERSIONS => 5
+
+-- alter many CFs at same time
+
+> alter 't1', 'f1', {NAME => 'f2', IN_MEMORY => true}, {NAME => 'f3', VERSIONS => 5}
+
+-- delete f1 CF in t1 TBL
+
+> alter 't1', 'delete' => 'f1'
+
+-- change t1 TBL properties like MAX_FILESIZE, READONLY, MEMSTORE_FLUSHSIZE, DEFFERRED_LOG_FLUSH
+-- put them in the end, ex: 128 MB here
+
+> alter 't1', MAX_FILESIZE => '134217728'
+
+-- set TBL coprocessor attribute
+
+> alter 't1', 'coprocessor' => 'hdfs:///foo.jar|com.foo.FooRegionObserver|1001|arg1=1,arg2=2'
+
+-- set TBL/CF configurations
+
+> alter 't1', CONFIGURATION => 
+	{'hbase.hregion.scan.loadColumnFamiliesOnDemand' => 'true'}
+	
+> alter 't1', {NAME => 'f2', CONFIGURATION =>
+	{'hbase.hstore.blockingStoreFiles' => '10'}}
+
+-- unset TBL attribute
+
+> alter 't1', METHOD => 'table_att_unset', NAME => 'MAX_FILESIZE'
+
+> alter 't1', METHOD => 'table_att_unset', NAME => 'coprocessor$1'
+
+-- many alters in one command
+
+> alter 't1', {NAME => 'f1', VERSION => 3}, {MAX_FILESIZE => '134217728'}
+		, {METHOD => 'delete', NAME => 'f2'}, OWNER => 'johndoe'
+		, METADATA => {'mykey' => 'myvalue'}
+
+CREATE:
+
+> create 't1', {NAME => 'f1', VERSIONS => 5}
+
+> create 't1', {NAME => 'f1'}, {NAME => 'f2'}, {NAME => 'f3'}
+
+> create 't1', 'f1', 'f2', 'f3'
+
+> create 't1', {NAME => 'f1', VERSIONS => 1, TTL => 2592000, BLOCKCACHE => true}
+
+> create 't1', {NAME => 'f1', CONFIGURATION => {'hbase.hstore.blockingStoreFiles' => 10}}
+
+-- other commands
+
+> describe 't1'
+
+> disable 't1'
+
+> disable_all 't.*'  -- 't.*' is a regex telling all tables starts with letter 't'
+
+> is_disabled 't1'
+
+> drop 't1'
+
+> drop_all 't.*'
+
+> enable 't1'
+
+> enable_all 't.*'
+
+> is_enabled 't1'
+
+> exists 't1'
+
+-- list all tables, optional regex
+
+> list
+
+> list 'abc.*'
+
+> show_filters
+
+-- status of the alter commond, as it need to be applied to many regions
+
+> alter_status 't1'
+
+-- asynchronus alter, doesn't wait for all regions
+
+> alter_async 't1', NAME => 'f1', METHOD => 'delete'
+
+> alter_async 't1', 'delete' => 'f1'
+
+> alter 't1', METHOD => 'table_att', MAX_FILESIZE => '134217728'
+
+> alter 't1', {NAME => 'f1'}, {NAME => 'f2', METHOD => 'delete'}
+
+COUNT:
+
+> count 't1', INTERVAL => 100000
+
+> count 't1', CACHE => 1000
+
+> count 't1', INTERVAL => 10, CACHE => 1000
+
+-- another way
+
+> t.count INTERVAL => 100000
+
+> t.count CACHE => 1000
+
+> t.count INTERVAL => 10, CACHE => 1000
+
+DELETE:
+
+-- delete from table t1 at row r1 under column c1 marked with time ts1
+
+> delete 't1', 'r1', 'c1', ts1
+
+> t.delete 'r1', 'c1', ts1
+
+> deleteall 't1', 'r1', 'c1'
+
+> deleteall 't1', 'r1', 'c1', ts1
+
+> t.deleteall 'r1', 'c1'
+
+> t.deleteall 'r1', 'c1', ts1
+
+GET:
+
+> get 't1', 'r1'
+
+> get 't1', 'r1', {TIMERANGE => [ts1, ts2]}
+
+> get 't1', 'r1', {COLUMN => 'c1'}
+
+> get 't1', 'r1', {COLUMN => ['c1', 'c2', 'c3']}
+
+> get 't1', 'r1', {COLUMN => 'c1', TIMESTAMP => ts1}
+
+> get 't1', 'r1', {COLUMN => 'c1', TIMERANGE => [ts1, ts2], VERSIONS => 4}
+
+> get 't1', 'r1', {COLUMN => 'c1', TIMESTAMP => ts1, VERSIONS => 4}
+
+> get 't1', 'r1', {FILTER => "ValueFilter(=,'binary:abc')"}
+
+> get 't1', 'r1', 'c1'
+
+> get 't1', 'r1', 'c1', 'c2'
+
+> get 't1', 'r1', ['c1', 'c2']
+
+-- get, with custom formatters, only for qualifiers not for CFs
+
+> get 't1', 'r1' {COLUMN => ['cf:qualifier1:toInt', 'cf:qualifier2:c(org.apache.hadoop.hbase.util.Bytes).toInt']}
+
+> t.get 'r1'
+
+> t.get 'r1', {TIMERANGE => [ts1, ts2]}
+
+> t.get 'r1', {COLUMN => 'c1'}
+
+> t.get 'r1', {COLUMN => ['c1', 'c2', 'c3']}
+
+> t.get 'r1' {COLUMN => 'c1', TIMESTAMP => ts1}
+
+> t.get 'r1', {COLUMN => 'c1', TIMERANGE => [ts1, ts2], VERSIONS => 4}
+
+> t.get 'r1', {COLUMN => 'c1', TIMESTAMP => ts1, VERSIONS => 4}
+
+> t.get 'r1', {FILTER => "ValueFilter(='binary:abc')"}
+
+> t.get 'r1', 'c1'
+
+> t.get 'r1', 'c1', 'c2'
+
+> t.get 'r1', ['c1','c2']
+
+-- get counter
+
+> get_counter 't1', 'r1', 'c1'
+
+> t.get_counter 'r1', 'c1'
+
+INCREMENT:
+
+> incr 't1', 'r1', 'c1'
+
+> incr 't1', 'r1', 'c1', 1
+
+> incr 't1', 'r1', 'c1', 10
+
+> t.incr 'r1', 'c1', 1
+
+> t.incr 'r1', 'c1', 10
+
+PUT:
+
+> put 't1', 'r1', 'c1', 'value', ts1
+
+> t.put 'r1', 'c1', 'value', ts1
+
+SCAN:
+
+> scan '.META.', {COLUMNS => 'info:regioninfo'}
+
+> scan 't1', {COLUMNS => ['c1', 'c2'], LIMIT => 10, STARTROW => 'xyz'}
+
+> scan 't1', {COLUMNS => 'c1', TIMERANGE => [1303668804,1303668904]}
+
+> scan 't1', {FILTER => 
+	"(PrefixFilter('row2') AND (QualifierFilter(>=,'binary:xyz'))) AND (TimestampsFilter(123, 456))"}
+
+> scan 't1', {FILTER =>
+	org.apache.hadoop.hbase.filter.ColumnPaginationFilter.new(1,0)}
+
+> scan 't1', {COLUMNS => ['c1', 'c2'], CACHE_BLOCKS => false}
+
+> scan 't1', {RAQ => true, VERSIONS => 10}
+
+-- other way
+
+> t = get_table 't'
+
+> t.scan
+
+TRUNCATE:
+
+> truncate 't1'
+
+ADMIN:
+
+> assign 'REGION_NAME'
+
+> balancer
+
+> balance_switch true
+
+> balance_switch flase
+
+> close_region 'REGIONNAME', 'SERVER_NAME'
+
+-- compact
+
+> compact 't1'
+
+> compact 'r1'
+
+> compact 'r1', 'c1'
+
+> compact 't1', 'c1'
+
+> flush 'REGIONNAME'
+
+> major_compact 't1'
+
+> major_compact 'r1'
+
+> major_compact 'r1', 'c1'
+
+> major_compact 't1', 'c1'
+
+-- move
+
+> move 'ENCODED_REGIONNAME', 'SERVER_NAME'
+
+-- split
+
+> split 'tableName'
+
+> split 'regionName' # format: 'tableName, startKey, id'
+
+> split 'tableName', 'splitKey'
+
+> split 'regionName', 'splitKey'
+
+> unassign 'REGIONNAME', true
+
+> hlog_roll
+
+-- dump status as seen by zookeeper
+
+> zk_dump
+
+> add_peer '1', "server1.cie.com:2181:/hbase"
+
+> add_peer '2', "zk1,zk2,zk3:2182:/hbase-prod"
+
+> remove_peer '1'
+
+> list_peers
+
+> enable_peer '1'
+
+> disable_peer '1'
+
+> start_replication
+
+> stop_replication
+
+> grant 'bobsmith', 'RW', 't1', 'f1', 'col1'
+
+> revoke 'bobsmith', 't1', 'f1', 'col1'
+
+SHOW USER PERMISSIONS:
+
+> user_permission 'table1'
+
+> tools
+
+> shutdown
+
+
+Reference:
+---------
+http://www.eurecom.fr/~michiard/teaching/slides/clouds/tutorial-hbase.pdf?bcsi_scan_94a977aee9df674a=0&bcsi_scan_filename=tutorial-hbase.pdf
