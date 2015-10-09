@@ -1,0 +1,124 @@
+-- what is logstash?
+logstash: logs -> reading (logstash) -> kafka/any-other-target
+works: listening, able to recongnize changes in a file, and pass it on the changed-bits to target
+
+-- what is the challenge we got?
+challenge: logs are in remote machine:
+
+1. REMOTE windows share, input? readable
+	input in this fashion
+		input-file=\\\\blrkecperfcoe2\\latest\\CitiSHare
+		-- make every back slash twice
+
+2. REMOTE linux machine, NETWORK FILE SYSTEM, NFS
+	source => windows, destination => linux
+	other alternatives like, samba
+	CATCH: we are using RHEL, cifs, COMMON INTERNET FILE SYSTEM
+
+-- what alternatives we have?
+Scenario:
+
+   REMOTE:				LOCAL:
+   ------				-----
+(1)logs,windows share			logstash->kafka
+(2)logs->lnfs				local-dir->logstash->kafka
+(3)logs->logstash			kafka
+
+(4)logs->logstash-forwarder		logstash->kafka
+
+-- why 4th option, logstash-forwarder?
+due to light-weight code, not cpu/memory hungry
+
+-- about logstash-forwarder
+1. written in GO language
+2. source files zip, then need to compile by GO language compilers
+https://github.com/elastic/logstash-forwarder
+
+-- how to get files inside the LINUX BOX? 
+BY cifs MOUNTING
+
+-- to mount windows share in rhel/fedora use this cmd then provide password of windows share
+$ mount -t cifs //blrkecperfcoe2/latest/CitiSHare /mnt/jnfs --verbose -o user=jagadishkumar_t
+
+-- prerequisites for logstash-forwarder?
+GO language
+-> get from, https://golang.org/dl/
+-> select linux, download, unzip
+
+-- how to compile logstash-forwarder, command? inside the logstash-forwarder-master folder
+$ go build -o logstash-forwarder
+	
+-- how to create CERT/KEY?
+login to the machine where logstash-forwarder is there, then execute the below command (here VILIMSHYO7 is host where logstash server resides)
+$ openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout logstash-forwarder.key -out logstash-forwarder.crt -days 365 -subj /CN=VILIMSHYD07
+
+-- where to put the CERT/KEY?
+CERT in, $CERT like, export CERT=/etc/pki/tls/certs/logstash-forwarder
+KEY in, $KEY like, /etc/pki/tls/private/logstash-forwarder
+
+-- how to copy files between linux servers/systems?
+$ scp source-file user@host:location/destination-file
+
+$ scp logstash-forwarder.crt root@VILIMSHYD07:$CERT/
+
+$ scp logstash-forwarder.key root@VILIMSHYD07:$KEY/
+
+
+-- how to write conf file for logstash-forwarder?
+copy from the github link
+-> modify the host:port in the beginning like, "servers": [ "VILIMSHYD07:6783" ]
+-> modify file-paths for KEY like,  "ssl key": "$KEY/logstash-forwarder.key"
+-> modfiy file-path for CERT like,  "ssl ca": "$CERT/logstash-forwarder.crt"
+-> add this path in the end like,  
+{
+      "paths": [
+        "/root/jagadishkumar_t/sample.log"
+      ],
+      "fields":{ "type": "jagadishlog" }
+
+-- how to write conf file for logstash?
+copy from github link, inside lumberjack
+modify port,CERT,KEY
+make sure PORT number is same on both files
+
+-- once done, sequence of starting the machines?
+First, logstash on local
+Second, logstash-forwarder on remote
+
+-- how to start logstash server in VERBOSE mode at receiver/LOCAL end?
+$ ./logstash -vv -f logstash-forwarder.conf
+
+-- how to start logstash-forwarder? (yourstuff.json is the CONF file, can also be renamed as yourstuff.conf, both works)
+$ ./logstash-forwarder -config yourstuff.json
+
+-- how to test?
+add few lines in REMOTE machine's sample.log
+see the stdout in LOCAL machine's CONSOLE
+
+-- what issues might be faced?
+1. copy the tar.gz files into the linux boxes
+2. intsalling GO language
+3. building logstash-forwarder by compiling using GO language
+4. disable firewall issues, check iptables
+5. creating tailor made certificates
+6. copy cert and key to other linux box
+7. changing ports if needed
+8. lumberjack protocol
+
+things which are not clear in github link:
+-----------------------------------------
+
+--last $ openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout logstash-forwarder.key -out logstash-forwarder.crt -days 365
+--fast $ openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout lumberjack.key -out lumberjack.crt -subj /CN=logstash.example.com
+
+-- this works
+--mine $ openssl req -x509 -batch -nodes -newkey rsa:2048 -keyout logstash-forwarder.key -out logstash-forwarder.crt -days 365 -subj /CN=VILIMSHYD07
+
+
+-- notes:
+either you change certificate or port or file-name. Anything used inside config, it need to be restarted.
+make sure to use the same port in both CONF files
+
+
+
+
