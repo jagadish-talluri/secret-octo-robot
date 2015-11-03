@@ -1,0 +1,151 @@
+ETA, Ganesh Perumal
+Good Knowledge on DISKs, Alogorithms, ML kmeans, KNN(nearest neighbour) etc. Has LATERAL knowledge
+LOT of notepad scala files for spark are there with him, need to collect them
+FITTING FUNCTIONS, Data Science, Numerical Methods and Data Structures
+
+I can have a good time talking with him. :)
+
+Q. ls in dos prompt
+Q. which tool used to write on screen
+Q. is there any usecase where MR is better than Spark? 100x, only performance wise
+trainer => fine grained updates and coarse grained updates; not suitable for asynchronus fine grained updates in shared spaces
+10x on disk, it is their claim, may be the environment is biased, when compare it to other.
+Q. what is an RDD, i mean the technical details of it?
+Q. what are we doing with PARALLELIZE keyword? with example
+Q. What are the advantages of SBT over spark-shell, both are CLI and import statements needed?
+trainer mentioned its a build tool, nothing special. No advatages over spark-shell
+Q. Can you compare MR and SPARK by using wordcount at concept level. I mean not at architecure level, not the code lines?
+Q. will you share the sample scala based spark programs?
+Q. which white-paper you read which have a list of USE CASES NOT FOR SPARK?
+
+=> SSDs are limited in the number of reads(in millions)
+=> SSDs work with speed of memory
+=> A particular block has a capcity to serve for a limited number of reads
+beyond that the block may fail anytime
+=> HARD DISK, linear movement, angular movement, they are stocisht, the head may
+fail many times, it misses the sector many times and it still reads in the next
+iteration, rpm of disk usually at 7000 RPM 
+=> SSDs holds charge, like air in hand, if charge is hold its ON or else its OFF
+that is the way the ram works
+
+=> SPARK, pre-fetches the data into memory, then stored in memory,
+so dont need to read from disk multiple times, again and again
+=> 10X faster on DISK, need to understand this
+=> some part of data only will be there on RAM as HDD is bigger
+=> a clever RANK algorithm swaps the data between RAM and HDD, mostly makes
+us to feel that every thing is on RAM
+=> SPARK, provide 80 high level operators to do parallel processing easily
+=> latest release SPARK 1.5
+=> sbt, simple build tool
+=> programming guides are there in SPARK website
+=> you are in a position to appreciate SPARK, for that you need to know Hadoop/MR
+as a prerequisits
+
+=> hadoop, does not scale down effectively, it is needed for small data
+=> hadoop, dont support event streaming
+=> hadoop, poor support to iterative (argorithmic) programming
+
+=> Age 132, data science, common sense says wrong, system predicts that age
+=> BigData, neatly arrange kitchen with all groceries neatly packed
+DataScience, the actual cooking
+if you dont know what to cook, then you cannot proceed.
+if you are not cooking then your kitchen is waste
+=> spark itself is a batch processing but faster. it is only for processing
+
+=> SCALA, anonymous functions
+lst.foreach(x=>println(x))
+=> Map
+lst.map(v => v+1)
+lst.map(_+1) UNDERSCORE used for every value, like FOREACH
+used in collections
+
+=> SPARK, website goto quick start guide
+it is a good place to start with
+=> SPARK, lazy execution. it will keep on postponing till ACTION occurs.
+TRANSFORMATIONS are postponed
+=> ardd.reduce(_+_) `is equal to` ardd.reduce((a,b)=>a+b)
+1,2,3,4,5 evaluated as `previous value cumilated then added to next value`
+a=1,b=2 => 3
+a=3,b=3 => 6
+a=6, b=4 => 10
+a=10,b=5 => 15
+like my sum of 1 lakh example, but this can be parallelized
+=> map is one-to-one mapping
+=> flatmap is one-to-many mapping
+
+=> SPARKs entire power is in those 80 OPERATORS, if you know them
+then you are the king of the jungle
+=> WORDCOUNT in one line:
+> val tf = sc.textFile("path/to/data.txt")
+> tf.flatMap(_.split(" ")).map(w=>(w,1)).reduceByKey(_+_).foreach(println)
+
+together in a line
+> sc.textFile("data/Readme.txt").flatMap(_.split(" ")).map(w=>(w,1)).reduceByKey(_+_).foreach(println)
+
+=> word count is an analytics approach, associating word with number like (hi,1)(hello,1) in map-output
+=> use SBT to build, 
+-- used to make a jar from the default src folder
+> package
+-- trainer used to compile and build scala programs
+this is again like a batch job
+wordcount program in scala, only one file
+used spark-submit command like `hadoop jar` to execute from linux
+> spark-submit --class 'wc' MyWC.jar
+
+=> SPARK STREAMING
+using NETCAT(nc) a unix utility to send messages
+stream data from one port to other
+
+spartk streaming, streaming context object
+> a streaming app, network word count, sends on 1467
+we need to tell, on what port to listen?
+> nc -lk 1467
+
+=> SBT is an IDE which is prebuilt with spark libs/jars for scala.
+=> I think spark killed mahout not hadoop, as spark is more towards ML
+
+=> spark is mainly used for ML
+=> ML is, means to build a MODEL from training data which is used to predict
+
+=> DataScience is an amalgamation of many things
++> statistics is there from centuries but we are focusing now because 
+of the business value we realized now
+=> predictive analytics
+	-regression , fitting a line in x-y axix, next x point?
+	- signal processing
+	- time series data
+
+=> Algorithem to SORT vs Algorithem to KMeans
+	diff in thought process
+
+=> VERACITY, age 134 or -24 are invalid
+=> Heuristics (huristic) algorithms mostly
+means cannot be generalized the result. 
+you cannot copy past the optimum value found in one experiment for all.
+
+=> Linear and Non-Linear programming - book
+BLAS - basic linear algebra subprograms
+Liner algebra(vectors, matrices)
+FORTRAN - Formula Translation
+
+=> if you couldnt beat the enemy, then to survive you need to join the enemy - trainer
+=> MAHOUT didnt picked up as anticipated 5 years back.
+ML needs interactive and iterative support, spark has it.
++ R clicked because it easy to impement + libs, within 5 mins you can start wroking onit
++ Spark clicked because ability to use RAM of cluster and RDD
++
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
