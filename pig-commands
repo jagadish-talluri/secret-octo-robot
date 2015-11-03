@@ -1,0 +1,64 @@
+# order desc
+daily = load '/root/hema/data/NYSE_daily.txt' as (exchange:chararray, symbol:chararray, date:chararray, open:float, high:float, low:float, close:float,volume:int, adj_close:float);
+byclose  = order daily by close desc, open;
+dump byclose; 
+
+# flatten
+empdetails = load 'EmployeeDetails.txt' using PigStorage(',') as (empid:chararray, empname:chararray,age:int,salary:int,dept:chararray);
+flat = foreach empdetails generate flatten(dept);
+dump flat;
+
+# order
+daily   = load '/root/hema/data/NYSE_daily.txt' as (exchange:chararray, symbol:chararray,
+            date:chararray, open:float, high:float, low:float, close:float,
+            volume:int, adj_close:float);
+bydate  = order daily by date;
+dump bydate;
+
+# foreach
+lines = LOAD '/root/hema/data/EmployeeDetails.txt' AS (line:chararray);
+words = FOREACH lines GENERATE FLATTEN(TOKENIZE(line)) as word;
+grouped = GROUP words BY word;
+wordcount = FOREACH grouped GENERATE group, COUNT(words);
+STORE wordcount into '/root/hema/data/result.txt';
+--DUMP wordcount;
+
+# filter
+divs = load '/root/hema/data/EmployeeDetails.txt' using PigStorage(',') as (empid:chararray, empname:chararray,age:int,salary:int,dept:chararray);
+salaryfilter = filter divs by salary>30000;
+--DUMP salaryfilter;
+STORE salaryfilter into '/root/hema/data/filterresult';
+
+# split
+empdetails = load '/root/hema/data/EmployeeDetails.txt' using PigStorage(',') as (empid:chararray, empname:chararray,age:int,salary:int,dept:chararray);
+split empdetails into ETAData if dept=='ETA',nonETAData if dept!='ETA';
+dump ETAData;
+dump nonETAData;
+
+# tuple
+A = LOAD '/root/hema/data/tupledata.tsv' AS (t1:tuple(t1name:chararray, t1age:int),t2:tuple(t2name:chararray,t2age:int));
+B = FOREACH A GENERATE t1.t1name, t1.t1age,t2.$0,t2.$1;
+DUMP B;
+
+# udf
+REGISTER /root/hema/data/UDFDemo.jar;
+A = load 'EmployeeDetails.txt' using PigStorage(',') as (empid:chararray, empname:chararray,age:int,salary:int,dept:chararray);
+B = FOREACH A GENERATE myudfs.UPPER(empname);
+DUMP B;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
