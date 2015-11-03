@@ -1,0 +1,34 @@
+# department.tsv
+
+1001	101 B.E
+1002	102 B.Tech
+1003	103 M.Tech
+1004	104 MCA
+1005	105 MBA
+1006	101 B.E
+1007	104 MCA
+1008	102 B.Tech
+1009	101 B.E
+1010	105 MBA
+1010	105 MBA
+
+# student.tsv
+
+1001	John	45.0
+1002	James	85.0
+1003	John	45.0
+1004	James	85.0
+1005	Smith	60.0
+1006	Scott	70.0
+1007	Shoba	80.0
+1008	Taanu	90.0
+1009	Anbu	95.0
+1010	Aruna	85.0
+1010	Aruna	85.0
+
+# tuple.tsv
+
+(John,12)	(Jack,13)
+(James,7)	(Joseph,5)
+(Smith,8)	(Scott,12)
+
