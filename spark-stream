@@ -1,0 +1,147 @@
+PRE-REQUISITES:
+
+1. Open zookeeper.properties, change dataDir and PORT accordingly (12181)
+2. Open server.properties, change log.dirs and PORT accordingly (18092)
+3. Add Java_Home and remove UseCompressedOps in kafka-run-class.bat [do this to avoid UseCompressedOps ]
+4. change KAFKA_HEAP_OPTS in kafka-server-start.bat from `-Xmx1G -Xms1G` to `-Xmx512m -Xms512m` [to avoid 1048576KB object heap error]
+
+-- -------------KAFKA
+1. Goto Kafka folder, Start ZooKeeper
+
+> zookeeper-server-start.bat ..\..\config\zookeeper.properties
+
+2. Now, Start Kafka
+
+> kafka-server-start.bat ..\..\config\server.properties
+
+3. Create Topic
+
+> kafka-topics.bat --zookeeper localhost:12181  --create --topic waterbottle --partitions 1 --replication-factor 1
+
+4. Then, Start Kafka Producer
+
+> kafka-console-producer.bat --broker-list localhost:18092 --topic waterbottle
+
+
+5. Then, Start Kafka Consumer
+
+> kafka-console-consumer.bat --zookeeper localhost:12181 --topic waterbottle
+
+6. To see, list of available Topics
+
+> kafka-topics.bat --zookeeper localhost:12181  --list
+
+-- --------------
+TEST:
+
+1. write something in producer and see that in consumer.
+-- ----------------------------------------------------------------------------------------------------------------------
+PRE-REQUISITES:
+
+1. Check for proper PRODUCER PORT numbers, TOPIC names
+2. Goto Logstash folder, check for logstash conf files
+3. TEST, before start
+
+> logstash.bat -f ..\..\..\PlayGround\LogStashConf\test.conf --configtest
+
+-- --------------LOGSTASH
+1. SET JAVA_HOME=C:\Program Files\Java\jdk1.8.0_45
+
+2. In Logstash Folder, Start logstash with corresponding CONFIG file
+
+> logstash.bat -f ..\..\..\PlayGround\LogStashConf\test.conf
+
+> logstash.bat -f ..\..\..\PlayGround\LogStashConf\logstash.conf
+
+-- -------------------------------------------------------------------------------------------------------------------------
+CITI ACT:
+--------
+
+Basic test to check 3-integration: TestSparkKafkaConsumer.java (1 file will do)
+
+1. Anomaly
+Change kakfa-settings in common.properties for `localhost`.
+AnomalyMetricDataGenerator.java --to generate data
+TestAnomalyMetricStream.java --to test the consumption
+
+2. Metrics
+AnomalyTestDataGenerator.java to generate data.log + anomaly.txt
+TestAnomalyMetricStream.java
+-- -----
+
+http://www.cyberciti.biz/faq/access-windows-shares-from-linux/
+http://stackoverflow.com/questions/24861674/can-logstash-read-directly-from-remote-log
+
+-- to mount windows share in rhel/fedora use this cmd then provide password of windows share
+$ mount -t cifs //blrkecperfcoe2/latest/CitiSHare /mnt/jnfs --verbose -o user=jagadishkumar_t
+
+-- to watch and execute the command/script in a time interval
+$ watch -n 1 ./testscript.sh
+
+-- code in testscript.sh
+echo data logged recently at
+date
+top -b -n 1 >> /mnt/jnfs/logfile.log
+
+-- why watch is not printing full list of top output, only first 15 lines?
+
+==> logstash-forwarder
+---------------------
+
+https://github.com/elastic/logstash-forwarder
+
+http://www.logstashbook.com/TheLogstashBook_sample.pdf
+
+https://github.com/elastic/logstash-forwarder/issues/230
+
+it can take yourstuff.json file also as config file
+usec $CERT, $KEY as my own environment paths
+
+commands today:
+
+$ traceroute google.com
+$ traceroute google.com -n
+$ traceroute google.com -w 0.001
+$ traceroute google.com -q 10
+$ traceroute google.com -f 8
+
+/etc/init.d/iptables restart
+
+2015/09/24 18:11:02.764590 Connecting to [10.67.104.49]:1457 (VILIMSHYD07)
+2015/09/24 18:11:02.765571 Failure connecting to 10.67.104.49: dial tcp 10.67.104.49:1457: getsockopt: no route to host
+2015/09/24 18:11:03.769753 Connecting to [10.67.104.49]:1457 (VILIMSHYD07)
+2015/09/24 18:11:03.770802 Failure connecting to 10.67.104.49: dial tcp 10.67.104.49:1457: getsockopt: no route to host
+
+2015/09/24 18:24:38.511033 Connecting to [10.67.104.49]:1457 (VILIMSHYD07)
+2015/09/24 18:24:38.526896 Failed to tls handshake with 10.67.104.49 x509: certificate is valid for , not VILIMSHYD07
+2015/09/24 18:24:39.527981 Connecting to [10.67.104.49]:1457 (VILIMSHYD07)
+2015/09/24 18:24:39.543149 Failed to tls handshake with 10.67.104.49 x509: certificate is valid for , not VILIMSHYD07
+
+
+-- to get verbose(-vv) and logs(--log) in logstash
+
+$ ./logstash -vv --logs ../logs-file -f logstash.conf
+
+-- seems like plugins are missing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
