@@ -1,0 +1,9 @@
+1. How to debug an MR program? programatically also?
+
+2. How to use distributed cache in MR program?
+
+3. What is Configuration and JobConf?
+
+4. How to create/delete the folders/dirs in HDFS programatically?
+
+5. What is GenericOptionsParser?
