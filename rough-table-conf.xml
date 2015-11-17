@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<table>
+	<tablename>GMRS_TABLLE</tablename>
+		<primarykey></primarykey>
+		<partitioncol></partitioncol>
+		<subpartitioncol1></subpartitioncol1>
+		<subpartitioncol2></subpartitioncol2>
+		<subpartitioncol3></subpartitioncol3>
+		<subpartitioncol4></subpartitioncol4>
+		<subpartitioncol5></subpartitioncol5>
+		
+		<tablecolumn>
+			<columnname>Exel</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>16</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+		
+		<tablecolumn>
+			<columnname>OrigCxlC</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>1</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+		
+		<tablecolumn>
+			<columnname>AsOfD</columnname>
+			<sourcedatatype>datetime</sourcedatatype>
+			<datalength>16</datalength>
+			<isnullable>Y</isnullable>
+			<hivedatatype>TIMESTAMP</hivedatatype>
+		</tablecolumn>
+		
+		<tablecolumn>
+			<columnname>BranchC</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>4</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>BuySellC</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>1</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>AvgPTrdTyp</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>1</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>CmsnA</columnname>
+			<sourcedatatype>float</sourcedatatype>
+			<datalength>15</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>CrossC</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>2</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>DeskC</columnname>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>4</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+
+		<tablecolumn>
+			<columnname>ExchR</columnname>
+			<sourcedatatype>float</sourcedatatype>
+			<datalength>15</datalength>
+			<isnullable>N</isnullable>
+			<hivedatatype>CHAR</hivedatatype>
+		</tablecolumn>
+		
+</table> 
+
+
+
+
+		
