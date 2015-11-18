@@ -1,7 +1,12 @@
 1. How to debug an MR program? programatically also?
 
 2. How to use distributed cache in MR program?
-
+Ans: 
+  for hadoop 2
+  http://wpcertification.blogspot.in/2014/07/using-distributedcache-with-mapreduce.html
+  for hadoop 2
+  https://gist.github.com/geofferyzh
+  
 3. What is Configuration and JobConf?
 
 4. How to create/delete the folders/dirs in HDFS programatically?
@@ -21,4 +26,20 @@ Ans:
   With Genericoption you can specify the following (-D option)
   $ hadoop jar /home/hduser/WordCount/wordcount.jar WordCount -Dmapred.reduce.tasks=20 input output
 
+11. API doc for hadoop 1.2.1?
+Ans:
+  http://hadoop.apache.org/docs/r1.2.1/api/org/apache/hadoop/filecache/DistributedCache.html
+  
+12. Tutorial doc for apache hadoop 1.2.1 from apache?
+Ans:
+  https://hadoop.apache.org/docs/r1.2.1/mapred_tutorial.html#DistributedCache
+  
+13. Why distributed cache API fully depricated?
+Ans:
+  http://stackoverflow.com/questions/26492964/are-getcachefiles-and-getlocalcachefiles-the-same
+  http://stackoverflow.com/questions/21239722/hadoop-distributedcache-is-deprecated-what-is-the-preferred-api
+  
+14. Distributed Cache example using old API (mapred)?
+Ans: google book link, good one to copy
+  https://books.google.co.in/books?id=OlMnCgAAQBAJ&pg=PA92&lpg=PA92&dq=distributed+cache+example+in+hadoop+1.2.1&source=bl&ots=7aM7tGswMy&sig=41T_Se8BVjSrLWrsb4YPrAZsQcs&hl=en&sa=X&ved=0CDkQ6AEwBWoVChMIksjPoN6ayQIVlMGOCh2I9g5i#v=onepage&q=distributed%20cache%20example%20in%20hadoop%201.2.1&f=false
 
