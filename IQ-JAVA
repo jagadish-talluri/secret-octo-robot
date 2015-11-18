@@ -22,3 +22,7 @@ Ans:
   http://stackoverflow.com/questions/5585779/converting-string-to-int-in-java
   
     int foo = Integer.parseInt("1234");
+
+4. Can we trust the order in ArrayList?
+Ans: Yes, if you add normally one-by-one and one-after-one. ArrayList is a sequential list
+  http://stackoverflow.com/questions/11331591/arraylist-insertion-and-retrieval-order
