@@ -1,0 +1,5 @@
+1. What is the difference between JAR and RUNNABLE-JAR?
+Ans:
+  The runnable jar contains a MANIFEST.MF file, which defines the Main class to be executed when the jar is run.
+  Non-runnable jars are just libraries of classes, that can be added to the classpath so that code is reused 
+  (it also contains the manifest file, but no main class there)
