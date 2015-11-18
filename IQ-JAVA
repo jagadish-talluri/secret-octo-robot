@@ -16,3 +16,9 @@ Ans:
     6.Length
     7.Adding elements
     8.Multi-dimensional
+    
+3. How to convert String to int in Java?
+Ans:
+  http://stackoverflow.com/questions/5585779/converting-string-to-int-in-java
+  
+    int foo = Integer.parseInt("1234");
