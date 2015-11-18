@@ -3,3 +3,16 @@ Ans:
   The runnable jar contains a MANIFEST.MF file, which defines the Main class to be executed when the jar is run.
   Non-runnable jars are just libraries of classes, that can be added to the classpath so that code is reused 
   (it also contains the manifest file, but no main class there)
+  
+2. What is the difference between Array and ArrayList?
+Ans:
+  http://javahungry.blogspot.com/2015/03/difference-between-array-and-arraylist-in-java-example.html
+  8 differences are there. 
+    1.Resizable
+    2.Performance
+    3.Primitives
+    4.Iterator
+    5.Type-Safety
+    6.Length
+    7.Adding elements
+    8.Multi-dimensional
