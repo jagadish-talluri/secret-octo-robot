@@ -1,5 +1,6 @@
 package a.b.c.tsa.validation;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
@@ -30,8 +32,8 @@ public class RecordValidation {
 		final String NAME_NODE = "hdfs://localhost:9000";
 		
 		Configuration conf = new Configuration();
-		GenericOptionsParser parser = new GenericOptionsParser(conf, args);
-		String[] other_args = parser.getRemainingArgs();
+//		GenericOptionsParser parser = new GenericOptionsParser(conf, args);
+//		String[] other_args = parser.getRemainingArgs();
 		
 		Job job = new Job(conf, "RecordValidation");
 		job.setOutputKeyClass(Text.class);
@@ -45,8 +47,8 @@ public class RecordValidation {
 		//adding this file from HDFS
 	    DistributedCache.addCacheFile(new URI(NAME_NODE + "/tsa-table-conf.xml"), job.getConfiguration());
 	
-		FileInputFormat.setInputPaths(job, new Path(other_args.get(0)));
-		FileOutputFormat.setOutputPath(job, new Path(other_args.get(1)));
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		
 		MultipleOutputs.addNamedOutput(job, "valid-records", TextOutputFormat.class, NullWritable.class, Text.class);
 		MultipleOutputs.addNamedOutput(job, "invalid-records", TextOutputFormat.class, NullWritable.class, Text.class);
