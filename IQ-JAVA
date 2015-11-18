@@ -26,3 +26,10 @@ Ans:
 4. Can we trust the order in ArrayList?
 Ans: Yes, if you add normally one-by-one and one-after-one. ArrayList is a sequential list
   http://stackoverflow.com/questions/11331591/arraylist-insertion-and-retrieval-order
+
+5. How many boolean compare operators are there in Java?
+Ans: 5, 
+      for AND &, &&
+      for OR |, ||
+      for XOR ^
+      && and || are short-circuted, that means if first one is valid, it wont check the second parameter.
