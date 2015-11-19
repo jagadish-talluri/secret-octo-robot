@@ -141,13 +141,14 @@ public class RecordValidationMapper extends Mapper<LongWritable, Text, Text, Nul
 				}
 			}
 		}
+		// "-" or "_" are not supposed tobe there in the file name
 		if (isValid) {
 			context.getCounter(RecordValidation.COUNTERS.VALID_RECORDS).increment(1L);
-			mos.write("valid-records", NullWritable.get(), value);
+			mos.write("validrecords", NullWritable.get(), value);
 
 		} else {
 			context.getCounter(RecordValidation.COUNTERS.INVALID_RECORDS).increment(1L);
-			mos.write("invalid-records", NullWritable.get(), value);
+			mos.write("invalidrecords", NullWritable.get(), value);
 		}
 	}
 
