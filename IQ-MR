@@ -60,3 +60,11 @@ Ans: Tough one, it depends.
 Ans:
   hadoop-common-2.7.1, available at ${HADOOP_HOME}/share/hadoop/common
   hadoop-mapreduce-client-core-2.7.1, available at ${HADOOP_HOME}/share/hadoop/mapreduce
+
+19. JAVAC command used to compile MR program with package structure?
+Ans: Sample
+  $ javac -d . -cp $HADOOP_LIBS/common/hadoop-common-2.4.0.jar:$HADOOP_LIBS/mapreduce/hadoop-mapreduce-client-core-2.4.0.jar RecordValidationMapper.java RecordValidation.java
+
+20. How to create a JAR based on folder?
+Ans: Sample
+  $ jar -cvf RecordValidation.jar com
