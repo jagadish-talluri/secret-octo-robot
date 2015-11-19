@@ -50,8 +50,8 @@ public class RecordValidation {
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		
-		MultipleOutputs.addNamedOutput(job, "valid-records", TextOutputFormat.class, NullWritable.class, Text.class);
-		MultipleOutputs.addNamedOutput(job, "invalid-records", TextOutputFormat.class, NullWritable.class, Text.class);
+		MultipleOutputs.addNamedOutput(job, "validrecords", TextOutputFormat.class, NullWritable.class, Text.class);
+		MultipleOutputs.addNamedOutput(job, "invalidrecords", TextOutputFormat.class, NullWritable.class, Text.class);
 		
 		job.waitForCompletion(true);
 		
