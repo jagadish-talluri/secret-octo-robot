@@ -43,3 +43,9 @@ Ans:
 Ans: google book link, good one to copy
   https://books.google.co.in/books?id=OlMnCgAAQBAJ&pg=PA92&lpg=PA92&dq=distributed+cache+example+in+hadoop+1.2.1&source=bl&ots=7aM7tGswMy&sig=41T_Se8BVjSrLWrsb4YPrAZsQcs&hl=en&sa=X&ved=0CDkQ6AEwBWoVChMIksjPoN6ayQIVlMGOCh2I9g5i#v=onepage&q=distributed%20cache%20example%20in%20hadoop%201.2.1&f=false
 
+15. What are the jars I used to develop and MR program in hadoop 2?
+Ans: Shocking to me, they are 4 files of less tham 5 MB size alltogether. Manually downloaded from MVN repository.
+  commons-logging-1.2
+  hadoop-common-2.7.1
+  hadoop-mapreduce-client-core-2.7.1
+  hadoop-mapreduce-client-jobclient-2.7.1
