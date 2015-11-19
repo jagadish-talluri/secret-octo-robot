@@ -49,3 +49,14 @@ Ans: Shocking to me, they are 4 files of less tham 5 MB size alltogether. Manual
   hadoop-common-2.7.1
   hadoop-mapreduce-client-core-2.7.1
   hadoop-mapreduce-client-jobclient-2.7.1
+  
+16. If you are manually compiling MR job using JAVAC, Which one you compile first? Map/Reduce/Job?
+Ans: Tough one, it depends.
+  if there are no interdependencies like Map is checking for Job and Job is checking for Map. Then we can go with Map, Reduce and Job.
+  But if there are interdependencies then compile all of them in the same command.
+  $ javac AMap.java AReduce.java AJob.java
+  
+18. In hadoop2 what JARS are needed to compile an MR program minimum?
+Ans:
+  hadoop-common-2.7.1, available at ${HADOOP_HOME}/share/hadoop/common
+  hadoop-mapreduce-client-core-2.7.1, available at ${HADOOP_HOME}/share/hadoop/mapreduce
