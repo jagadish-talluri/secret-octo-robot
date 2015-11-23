@@ -68,3 +68,8 @@ Ans: Sample
 20. How to create a JAR based on folder?
 Ans: Sample
   $ jar -cvf RecordValidation.jar com
+
+21. In MR program executed on hadoop cluster, Where does the debug System.out.println() statements print?
+Ans:
+  For Hadoop1 : http://localhost:50030/jobtracker.jsp->click on the completed job->click on map or reduce task->click on tasknumber->task logs->stdout logs.
+  For Hadoop2 : yarn logs -applicationId application_1383601692319_0008
