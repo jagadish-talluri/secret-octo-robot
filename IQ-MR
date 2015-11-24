@@ -83,3 +83,8 @@ Ans:
       2. hadoop-common-2.7.1
       3. hadoop-mapreduce-client-core-2.7.1
     For Hadoop1: Yet to Check
+
+23. Where is hadoop-examples.jar in hadoop installation directory?
+Ans:
+  For hadoop1: $HADOOP-HOME/hadoop-examples.jar
+  For hadoop2: $HADOOP_HOME/share/hadoop/mapreduce/hadoop-examples.jar
