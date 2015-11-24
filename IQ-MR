@@ -73,3 +73,13 @@ Ans: Sample
 Ans:
   For Hadoop1 : http://localhost:50030/jobtracker.jsp->click on the completed job->click on map or reduce task->click on tasknumber->task logs->stdout logs.
   For Hadoop2 : yarn logs -applicationId application_1383601692319_0008
+  
+22. How to use CombineFileInputFormat to send many small files to a single input split?
+Ans:
+  https://svn.apache.org/repos/asf/hadoop/common/trunk/hadoop-mapreduce-project/hadoop-mapreduce-examples/src/main/java/org/apache/hadoop/examples/MultiFileWordCount.java
+  Libs Needed:
+    For Hadoop2:
+      1. commons-logging-1.2
+      2. hadoop-common-2.7.1
+      3. hadoop-mapreduce-client-core-2.7.1
+    For Hadoop1: Yet to Check
