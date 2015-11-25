@@ -33,3 +33,14 @@ Ans: 5,
       for OR |, ||
       for XOR ^
       && and || are short-circuted, that means if first one is valid, it wont check the second parameter.
+      
+6. Frequent Gotcha, with object is?
+Ans:  WHEN EQUATING OBJECTS, use a.equals(b) instead of a == b
+  we compare the reference variables thinking that we are comparing values.
+  Need to use equals method at any cost as that only will do what we intended.
+  
+7. Frequent Gotcha, with String is?
+Ans: When doing string operations we assume it is normal object. But it is IMMUTABLE, that is, its methods cannot change its state.
+  use a = a.concat("with something") instead of simply leaving a.concat("with something")
+  Here alone, we will feel like we are not using object oriented way.
+
