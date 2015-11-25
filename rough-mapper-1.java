@@ -1,22 +1,15 @@
 package a.b.c.tsa.validation;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
@@ -31,131 +24,157 @@ import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 public class RecordValidationMapper extends Mapper<LongWritable, Text, Text, NullWritable> {
 
-	private BufferedReader fis;
-	private int nColumnCount;
-	private NodeList nList;
+        private int nColumnCount;
+        private NodeList nList;
+        private String delimiter;
 
-	// create arraylist
-	private ArrayList<String> fieldLengths = new ArrayList<String>();
+        // create arraylist
+        private ArrayList<String> fieldLengths = new ArrayList<String>();
+        private ArrayList<String> isNullableList = new ArrayList<String>();
+        private ArrayList<String> columnNames = new ArrayList<String>();
 
-	private MultipleOutputs<Text, Text> mos;
+        private MultipleOutputs<Text, Text> mos;
 
-	@SuppressWarnings("deprecation")
-	protected void setup(Context context) throws java.io.IOException, InterruptedException {
+        @SuppressWarnings("deprecation")
+        protected void setup(Context context) throws java.io.IOException, InterruptedException {
 
-		// initializing multiple-outputs
-		mos = new MultipleOutputs(context);
+                // initializing multiple-outputs
+                mos = new MultipleOutputs(context);
 
-		try {
+                try {
 
-			Path[] xmlConfFiles = new Path[0];
-			xmlConfFiles = context.getLocalCacheFiles();
-			System.out.println(xmlConfFiles.toString());
-			if (xmlConfFiles != null && xmlConfFiles.length > 0) {
-				for (Path xmlConfFile : xmlConfFiles) {
-					readXmlConfFile(xmlConfFile);
-				}
-			}
-		} catch (IOException e) {
-			System.err.println("Exception reading xml conf file: " + e);
+                        Path[] xmlConfFiles = new Path[0];
+                        xmlConfFiles = context.getLocalCacheFiles();
+                        System.out.println(xmlConfFiles.toString());
+                        if (xmlConfFiles != null && xmlConfFiles.length > 0) {
+                                for (Path xmlConfFile : xmlConfFiles) {
+                                        readXmlConfFile(xmlConfFile);
+                                }
+                        }
+                } catch (IOException e) {
+                        System.err.println("Exception reading xml conf file: " + e);
 
-		}
+                }
 
-	}
+        }
 
-	/*
-	 * Method to read the xmlConfFile and get the fields
-	 */
+        /*
+         * Method to read the xmlConfFile and get the fields
+         */
 
-	private void readXmlConfFile(Path xmlConfFile) {
+        private void readXmlConfFile(Path xmlConfFile) {
 
-		try {
+                try {
 
-			File fXmlFile = new File(xmlConfFile.toString());
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(fXmlFile);
+                        File fXmlFile = new File(xmlConfFile.toString());
+                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                        Document doc = dBuilder.parse(fXmlFile);
 
-			doc.getDocumentElement().normalize();
+                        doc.getDocumentElement().normalize();
 
-			System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+                    	NodeList dNodeList = doc.getElementsByTagName("delimiter");
+                    	Node delimiterNode = dNodeList.item(0);
+                    	delimiter = delimiterNode.getTextContent();
 
-			// list of all column tags
-			nList = doc.getElementsByTagName("tablecolumn");
-			nColumnCount = nList.getLength();
+                        
+                        System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
 
-			// System.out.println("-----------column-count-----------------"+nColumnCount);
+                        // list of all column tags
+                        nList = doc.getElementsByTagName("tablecolumn");
+                        nColumnCount = nList.getLength();
 
-			for (int temp = 0; temp < nList.getLength(); temp++) {
+                        // System.out.println("-----------column-count-----------------"+nColumnCount);
 
-				// a particular column tag
-				Node nNode = nList.item(temp);
+                        for (int temp = 0; temp < nList.getLength(); temp++) {
 
-//				System.out.println("\nCurrent Element :" + nNode.getNodeName());
+                                // a particular column tag
+                                Node nNode = nList.item(temp);
 
-				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+//                              System.out.println("\nCurrent Element :" + nNode.getNodeName());
 
-					Element eElement = (Element) nNode;
+                                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
-					// System.out.println("Staff id : " +
-					// eElement.getAttribute("id"));
-					// System.out.println("Column Name : " +
-					// eElement.getElementsByTagName("columnname").item(0).getTextContent());
-					// System.out.println("Data Type : " +
-					// eElement.getElementsByTagName("sourcedatatype").item(0).getTextContent());
-					// System.out.println("Data Length : " +
-					// eElement.getElementsByTagName("datalength").item(0).getTextContent());
-					// System.out.println("IsNull : " +
-					// eElement.getElementsByTagName("isnullable").item(0).getTextContent());
+                                        Element eElement = (Element) nNode;
 
-					fieldLengths.add(eElement.getElementsByTagName("datalength").item(0).getTextContent());
+                                        fieldLengths.add(eElement.getElementsByTagName("datalength").item(0).getTextContent());
+                                        isNullableList.add(eElement.getElementsByTagName("isnullable").item(0).getTextContent());
+                                        columnNames.add(eElement.getElementsByTagName("columnname").item(0).getTextContent());
 
-				}
-			}
-		} catch (IOException | ParserConfigurationException | SAXException ioe) {
-			System.err.println("Exception while reading xml conf file '" + xmlConfFile + "' : " + ioe.toString());
-		}
-	}
+                                }
+                        }
+                } catch (Exception ioe) {
+                        System.err.println("Exception while reading xml conf file '" + xmlConfFile + "' : " + ioe.toString());
+                }
+        }
 
-	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-		String line = value.toString();
-		StringTokenizer tokenizer = new StringTokenizer(line, ",");
-		int nTokenCount = tokenizer.countTokens();
-		Iterator itrFieldLen = fieldLengths.iterator();
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-//		System.out.println("------------token-count----------------" + nTokenCount);
+                String errorMsg = " [Error Msg";
+                String line = value.toString();
+                
+                /* string tokenizer failed to identify empty tokens */
+                //StringTokenizer tokenizer = new StringTokenizer(line, ",");
+                //int nTokenCount = tokenizer.countTokens();
 
-		boolean isValid = false;
-		
-		if (nColumnCount == nTokenCount) {
-			isValid = true;
-			// stop iteration if any column validation fails
-			while (isValid && tokenizer.hasMoreTokens()) {
-				
-				String token = tokenizer.nextToken().trim();
-				int fieldLength = Integer.parseInt(itrFieldLen.next().toString());
-				
-				// field length validation
-				if (fieldLength != token.length()) {
-					isValid = false;
-				}
-			}
-		}
-		// "-" or "_" are not supposed tobe there in the file name
-		if (isValid) {
-			context.getCounter(RecordValidation.COUNTERS.VALID_RECORDS).increment(1L);
-			mos.write("validrecords", NullWritable.get(), value);
+                // replace StringTokenizer logic with String splits in a List, this helps not to change the while loop, -1 for including trailing empty tokens
+                String[] lineSplits = line.split(delimiter, -1);
+                int nTokenCount = lineSplits.length;
+                List<String> lineSplitsList = Arrays.asList(lineSplits);
+                Iterator tokenizer = lineSplitsList.iterator();
+                
 
-		} else {
-			context.getCounter(RecordValidation.COUNTERS.INVALID_RECORDS).increment(1L);
-			mos.write("invalidrecords", NullWritable.get(), value);
-		}
-	}
+                Iterator itrFieldLen = fieldLengths.iterator();
+                Iterator itrNullable = isNullableList.iterator();
+                Iterator itrColNames = columnNames.iterator();
 
-	@Override
-	protected void cleanup(Context context) throws IOException, InterruptedException {
+//              System.out.println("------------token-count----------------" + nTokenCount);
 
-		// closing multiple-outputs
-		mos.close();
-	}
+                boolean isValid = false;
+                
+                // column count validation
+                if (nColumnCount == nTokenCount) {
+                        isValid = true;
+                        // stop iteration if any column validation fails, performance tip
+                        while (isValid && tokenizer.hasNext()) {
+
+                                String token = tokenizer.next().toString().trim();
+                                int fieldLength = Integer.parseInt(itrFieldLen.next().toString());
+                                String isNullableValue = itrNullable.next().toString();
+                                String colName = itrColNames.next().toString();
+
+                                // check for validation of NULLs, is it NULL? and can it be NULL?
+                                if (token.length() == 0 & isNullableValue.equals("N")) {
+                                        isValid = false;
+                                        errorMsg = errorMsg.concat(" : \'"+colName+"\' Field is Null");
+                                }
+
+                                // field length validation
+                                else if (fieldLength != token.length()) {
+                                        isValid = false;
+                                        errorMsg = errorMsg.concat(" : \'"+colName+"\' Field expected length is "+fieldLength+" but received "+token.length()) ;
+                                }
+                        }
+                } else {errorMsg = errorMsg.concat(" : either delimiter issue or column count doesn't match, expected "+nColumnCount+" but received "+nTokenCount);}
+                
+                
+                if (isValid) {
+                        context.getCounter(RecordValidation.COUNTERS.VALID_RECORDS).increment(1L);
+                        mos.write("validrecords", NullWritable.get(), value);
+
+                } else {
+                        context.getCounter(RecordValidation.COUNTERS.INVALID_RECORDS).increment(1L);
+                        String r = errorMsg.toString()+"]";
+                        Text t = new Text(value.toString()+r);
+                        //value = new Text(value.toString() + errorMsg);
+                        mos.write("invalidrecords", NullWritable.get(), t);
+                }
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+
+                // closing multiple-outputs
+                mos.close();
+        }
 }
