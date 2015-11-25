@@ -44,3 +44,6 @@ Ans: When doing string operations we assume it is normal object. But it is IMMUT
   use a = a.concat("with something") instead of simply leaving a.concat("with something")
   Here alone, we will feel like we are not using object oriented way.
 
+8. Frequent Gotcha, with StringTokenizer?
+Ans: it skips empty tokens. ex: 1,2,,4 : these are 4 fields but you will get only 3 fields
+  instead use string.split(",") to get the desired result.
