@@ -88,3 +88,12 @@ Ans:
 Ans:
   For hadoop1: $HADOOP-HOME/hadoop-examples.jar
   For hadoop2: $HADOOP_HOME/share/hadoop/mapreduce/hadoop-examples.jar
+
+24. When you do listing in hdfs, in which oder the files are displayed?
+Ans: alphabetic order of the file name
+
+25. How to sort the hdfs -ls output chronologically?
+Ans: No direct option, use below
+  for hadoop1 : $ hadoop fs -ls /mydir | sort  -k 6
+  for hadoop2 : $ hdfs fs -ls /mydir | sort -k 6
+  
