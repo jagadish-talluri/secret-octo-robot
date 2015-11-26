@@ -97,3 +97,13 @@ Ans: No direct option, use below
   for hadoop1 : $ hadoop fs -ls /mydir | sort  -k 6
   for hadoop2 : $ hdfs fs -ls /mydir | sort -k 6
   
+26. What will you do when you cluster says java-out-of-memory error? You are unable to execute hdfs -ls command also?
+Ans:
+
+27. Gotcha, SimpleDateFormat, It is parsing incorrect datetime instead of giving error?
+Ans: By default, SimpleDateFormat is liberal or lenient. That means, it is fine if there are mistakes.
+  For example: give -> '20150603 25:00:00' , its clear that 25 is bigger than 24, which is incorrect
+                but it changes it to '20150604 01:00:00', next day 1st hour.
+                so it assumes full liberty. be care full.
+  To avoid: explicitly set the lenient to false like, setLenient(false)
+  
