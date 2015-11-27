@@ -198,10 +198,10 @@ public class RecordValidationMapper extends Mapper<LongWritable, Text, Text, Nul
                                 }
 
                                 // field length validation, is the expected length same?
-//                                else if (fieldLength != token.length()) {
-//                                        isValid = false;
-//                                        errorMsg = errorMsg.concat(" : \'"+colName+"\' Field expected length is \'"+fieldLength+"\' but received \'"+token.length()+"\'") ;
-//                                }
+                                else if (fieldLength != token.length()) {
+                                        isValid = false;
+                                        errorMsg = errorMsg.concat(" : \'"+colName+"\' Field expected length is \'"+fieldLength+"\' but received \'"+token.length()+"\'") ;
+                                }
                                 
                                 // date format validation, is the field datetime? is it valid?
                                 else if (DataType.equals("datetime") & (!isDateValid(token,dateFormat))){
