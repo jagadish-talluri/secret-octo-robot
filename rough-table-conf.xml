@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <table>
 	<tablename>GMRS_TABLLE</tablename>
+		<delimiter>,</delimiter>
+		<dateformat>yyyyMMdd HH:mm:ss</dateformat>
 		<primarykey></primarykey>
 		<partitioncol></partitioncol>
 		<subpartitioncol1></subpartitioncol1>
@@ -12,7 +14,7 @@
 		<tablecolumn>
 			<columnname>Exel</columnname>
 			<sourcedatatype>char</sourcedatatype>
-			<datalength>16</datalength>
+			<datalength>11</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
@@ -27,16 +29,16 @@
 		
 		<tablecolumn>
 			<columnname>AsOfD</columnname>
-			<sourcedatatype>datetime</sourcedatatype>
-			<datalength>16</datalength>
+			<sourcedatatype>char</sourcedatatype>
+			<datalength>1</datalength>
 			<isnullable>Y</isnullable>
 			<hivedatatype>TIMESTAMP</hivedatatype>
 		</tablecolumn>
 		
 		<tablecolumn>
 			<columnname>BranchC</columnname>
-			<sourcedatatype>char</sourcedatatype>
-			<datalength>4</datalength>
+			<sourcedatatype>datetime</sourcedatatype>
+			<datalength>17</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
@@ -60,7 +62,7 @@
 		<tablecolumn>
 			<columnname>CmsnA</columnname>
 			<sourcedatatype>float</sourcedatatype>
-			<datalength>15</datalength>
+			<datalength>25</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
@@ -68,7 +70,7 @@
 		<tablecolumn>
 			<columnname>CrossC</columnname>
 			<sourcedatatype>char</sourcedatatype>
-			<datalength>2</datalength>
+			<datalength>1</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
@@ -76,7 +78,7 @@
 		<tablecolumn>
 			<columnname>DeskC</columnname>
 			<sourcedatatype>char</sourcedatatype>
-			<datalength>4</datalength>
+			<datalength>2</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
@@ -84,7 +86,7 @@
 		<tablecolumn>
 			<columnname>ExchR</columnname>
 			<sourcedatatype>float</sourcedatatype>
-			<datalength>15</datalength>
+			<datalength>25</datalength>
 			<isnullable>N</isnullable>
 			<hivedatatype>CHAR</hivedatatype>
 		</tablecolumn>
