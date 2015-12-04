@@ -107,3 +107,10 @@ Ans: By default, SimpleDateFormat is liberal or lenient. That means, it is fine 
                 so it assumes full liberty. be care full.
   To avoid: explicitly set the lenient to false like, setLenient(false)
   
+28. When do we need to have a custom combiner instead of reusing reducer? Any examples?
+Ans: Scene 1:
+      a. when you want to do a valid/invalid duplicate records segregation, reducer focus on summation logic plus write to 2 files.
+      b. And combiner focus on only summation logic(>1 record is duplicate).
+     Scene 2:
+      a. when you want to do an average in reducer, (sum.of.obs)/(no.of.obs).
+      b. you can use combiner to sum up the observation. so this helps in numerator aggregation.
