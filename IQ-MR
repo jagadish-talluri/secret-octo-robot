@@ -151,3 +151,6 @@ Ans: No Need. As input-file and output-file args doesn't need the scheme info. T
   If at all you add then also no issue, but its like hard coding.
     final String NAME_NODE = "hdfs://somehost:9000";
     DistributedCache.addCacheFile(new URI(NAME_NODE + new Path(args[0])), job.getConfiguration());
+
+36. What is hadoop Stringifier Class?
+Ans: It is in Hadooop definitive guide 4th edition page 276. Used to convert objects into string. This is hadoop's own serilalization method.
