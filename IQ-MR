@@ -114,3 +114,33 @@ Ans: Scene 1:
      Scene 2:
       a. when you want to do an average in reducer, (sum.of.obs)/(no.of.obs).
       b. you can use combiner to sum up the observation. so this helps in numerator aggregation.
+
+29. What is the parameter to change the input split size?
+Ans:    "mapred.max.split.size", this parameter can be set for job individually.
+
+30. Is "dfs.block.size" parameter is truely global?
+Ans: Tricky Question.
+  According to documentation not necessarily. You can specify some files to have a different block size.
+  
+31. Assume 64 MB is the size of blocks in HDFS and there are x number of files with that specification in the cluster.
+    And Suddenly we changed the block size to 128 MB. So what happens now in this scenario? Does all the old files will also change their block size?
+        or Old files retain 64 MB and new files maintain 128 MB?
+Ans: Need to check
+
+32. What is the formula used by hadoop to choose the input split?
+Ans: " max(minimumSize, min(maximumSize, blockSize)) "
+get the MIN of max-split-size=default java long max value AND block-size=default 64/128MB
+then get the MAX of previous value AND min-split-size=default is very little.
+  by DEFAULT minimumSize < blockSize < maximumSize, THEREFORE mostly blocksize WILL BE split size.
+  example:
+    Minimum Split Size 1
+    Maximum Split Size 32mb
+    Block Size  64mb
+            Therfore, Split Size  32mb
+    explanation: min(64,32) => 32 ; max(-ve, 32) => 32
+    
+33. What happens if AppMaster Fails? Will there be an re-attempt? If so who will take care of it?
+Ans: 
+
+34. What is the need of REST API in mapreduce?
+Ans: 
