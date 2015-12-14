@@ -144,3 +144,10 @@ Ans:
 
 34. What is the need of REST API in mapreduce?
 Ans: 
+
+35. Do I need to give the fully qualified path for name node if I want to add files to distributed cache?
+Ans: No Need. As input-file and output-file args doesn't need the scheme info. The same cache file also doesnt need it.
+    DistributedCache.addCacheFile(new URI(args[0]), job.getConfiguration());
+  If at all you add then also no issue, but its like hard coding.
+    final String NAME_NODE = "hdfs://somehost:9000";
+    DistributedCache.addCacheFile(new URI(NAME_NODE + new Path(args[0])), job.getConfiguration());
