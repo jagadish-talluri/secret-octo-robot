@@ -154,3 +154,9 @@ Ans: No Need. As input-file and output-file args doesn't need the scheme info. T
 
 36. What is hadoop Stringifier Class?
 Ans: It is in Hadooop definitive guide 4th edition page 276. Used to convert objects into string. This is hadoop's own serilalization method.
+
+37. Is HDFS file system can be mounted? if so how?
+Ans: Yes, with hadoop2 HDFS file system became mountable.
+  Need to know the steps to do:
+  
+38. 
