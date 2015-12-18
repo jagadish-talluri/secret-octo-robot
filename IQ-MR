@@ -161,3 +161,21 @@ Ans: Yes, with hadoop2 HDFS file system became mountable.
   
 38. Where do you see the logger messages or sysout's or exception messages emitted by your MR job?
 Ans: Lot to write, working on it.
+
+39. How many blocks are created for a file size of 200 MB? (block-size=64MB, replication=1)
+Ans: 4 blocks
+    1 block 64MB of 1-64(64MB)
+    2 block 64MB of 65-128(64MB)
+    3 block 64MB of 129-192(64MB)
+    4 block 64MB of 193-200(8MB)
+    
+40. In above question(39). If the last block is not completely filled then what happens? Is the remaining spaces wasted? Explain?
+Ans: No. Remaining 56MB is not wasted and can be usable if needed. HDFS is a logical file system not physical. So we are not supposed
+      to take these numbers seriously like a real file system.
+    Explanation: In progress
+        How the unused space accounted for?
+        http://stackoverflow.com/questions/13012924/large-block-size-in-hdfs-how-is-the-unused-space-accounted-for
+      
+41. Are the blocks of a file are written sequentially or parallely? Look at 39 Question for the file.
+Ans: Sequential, one after other. Refer the below link.
+  http://stackoverflow.com/questions/24301085/hadoop-hdfs-file-writes-reads
