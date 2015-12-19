@@ -179,3 +179,7 @@ Ans: No. Remaining 56MB is not wasted and can be usable if needed. HDFS is a log
 41. Are the blocks of a file are written sequentially or parallely? Look at 39 Question for the file.
 Ans: Sequential, one after other. Refer the below link.
   http://stackoverflow.com/questions/24301085/hadoop-hdfs-file-writes-reads
+
+42. How will you read a binary file such as image, video or some other file has binary data?
+Ans: we use BytesWritable data type to read it. There is an example of video analysis.
+      see in youtube
