@@ -191,6 +191,7 @@ Ans: In HDFS, reads normally go through the DataNode. Thus, when the client asks
   Obviously, this is only possible in cases where the client is co-located with the data. 
   Short-circuit reads provide a substantial performance boost to many applications.
   setting is done in hdfs-site.xml.
+  url-help, https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/ShortCircuitLocalReads.html
 
 44. Why do you get "Unable to load native-hadoop library for your platform... using built-in-java classes where applicable" this error?
 Ans: If hadoop didnt find the *.so files then it will give this error.
@@ -203,3 +204,4 @@ Ans:
   Hadoop has native implementations of certain components for performance reasons and for non-availability of Java implementations.
   The native hadoop library is written in ANSI C and is built using the GNU autotools-chain (autoconf, autoheader, automake, autoscan, libtool). 
   This means it should be straight-forward to build the library on any platform with a standards-compliant C compiler and the GNU autotools-chain (see the supported platforms).
+  url-help, https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/NativeLibraries.html
