@@ -190,3 +190,4 @@ Ans: In HDFS, reads normally go through the DataNode. Thus, when the client asks
   So-called “short-circuit” reads bypass the DataNode, allowing the client to read the file directly. 
   Obviously, this is only possible in cases where the client is co-located with the data. 
   Short-circuit reads provide a substantial performance boost to many applications.
+  setting is done in hdfs-site.xml.
