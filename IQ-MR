@@ -191,3 +191,12 @@ Ans: In HDFS, reads normally go through the DataNode. Thus, when the client asks
   Obviously, this is only possible in cases where the client is co-located with the data. 
   Short-circuit reads provide a substantial performance boost to many applications.
   setting is done in hdfs-site.xml.
+
+44. Why do you get "Unable to load native-hadoop library for your platform... using built-in-java classes where applicable" this error?
+Ans: If hadoop didnt find the *.so files then it will give this error.
+   Depending on your environment, the term “native libraries” could refer to all *.so’s you need to compile; 
+   and, the term “native compression” could refer to all *.so’s you need to compile that are specifically related to compression. 
+   Currently, however, this document only addresses the native hadoop library (libhadoop.so). The document for libhdfs library (libhdfs.so)
+
+45. Why do you need native libraries? What special usage than Java? Why the .co extension?
+Ans: 
