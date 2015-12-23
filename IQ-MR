@@ -200,3 +200,6 @@ Ans: If hadoop didnt find the *.so files then it will give this error.
 
 45. Why do you need native libraries? What special usage than Java? Why the .co extension?
 Ans: 
+  Hadoop has native implementations of certain components for performance reasons and for non-availability of Java implementations.
+  The native hadoop library is written in ANSI C and is built using the GNU autotools-chain (autoconf, autoheader, automake, autoscan, libtool). 
+  This means it should be straight-forward to build the library on any platform with a standards-compliant C compiler and the GNU autotools-chain (see the supported platforms).
