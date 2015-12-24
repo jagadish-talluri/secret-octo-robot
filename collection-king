@@ -1,7 +1,5 @@
 Collect:
 
-Crowd Source to gather these things.
-
 1. Lots of Data Sets
 2. Lots of Interview Questions / Q & A / StackOverflow / Quora / Quizlet
 3. Lots of Reusable Programs
@@ -9,6 +7,14 @@ Crowd Source to gather these things.
 5. Lots of Blogs / Info Material
 6. Lots of Videos / Tutorials
 7. Lots of books / ebooks
+
+Crowd Source to gather these things:
+
+StackOverflow => crowd => formatted, relevant interview questions
+
+Blogs => crowd => better explained concepts, worth treasuring
+
+eBooks => crowd => usable notes snippets, to bursh up quickly
 
 Take a usecase and it can be used to explain any programming language model.
 
