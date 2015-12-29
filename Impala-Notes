@@ -299,5 +299,25 @@ natively in memory, having a framework will add additional delay in the executio
 
 overhead.
 
+--Impala processes all queries in memory, so memory limitation on nodes is definitely a factor. You must have 
+
+enough memory to support the resultant dataset, which could grow multifold during complex JOIN operations.
+--If a query starts processing the data and the resultant dataset cannot fit in the available memory, the query 
+
+will fail.
+
+*During query processing, unencrypted data is sometimes transmitted between Impala daemons.
+*At the time of writing this book, Hadoop 2.0 achieved the GA milestone; however, Hadoop-2.0-based YARN is not 
+
+integrated with Impala.
+*Custom Hive SerDes classes are not supported and only native file formats are supported using the built-in 
+
+SerDes.
 
 Bibiliography:
+http://hortonworks.com/blog/impala-vs-hive-performance-benchmark/
+https://www.linkedin.com/pulse/20140910142911-22744472-why-is-impala-faster-than-hive
+https://blog.cloudera.com/blog/2015/11/new-in-cloudera-enterprise-5-5-support-for-complex-types-in-impala/
+Learning Cloudera Impala - Avkash Chauhan
+https://blog.cloudera.com/blog/2014/01/how-to-get-started-writing-impala-udfs/
+
