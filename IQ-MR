@@ -215,3 +215,11 @@ Ans:
 
 48. What are the compression you know?
 Ans: gzip, bzip2, deflate, lzo, snappy
+
+49. Explain the compressions with usage benefits?
+Ans:
+      snappy, Very fast; it is the fastest in compression and decompression
+      gzip, It is the best option to save disk space
+      lzo, Use only with text files
+      bzip2, Not a top choice but Impala can read input files
+      deflate, Not a first or second choice; however, can read input files
