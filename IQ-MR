@@ -205,3 +205,13 @@ Ans:
   The native hadoop library is written in ANSI C and is built using the GNU autotools-chain (autoconf, autoheader, automake, autoscan, libtool). 
   This means it should be straight-forward to build the library on any platform with a standards-compliant C compiler and the GNU autotools-chain (see the supported platforms).
   url-help, https://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/NativeLibraries.html
+
+46. What are the file formats you know?
+Ans: 
+    Avro File Format, Sequence File Format, Text File Format, RC File Format, Parquet File Format
+    
+47. Explain each file format and differences among them?
+Ans:
+
+48. What are the compression you know?
+Ans: gzip, bzip2, deflate, lzo, snappy
