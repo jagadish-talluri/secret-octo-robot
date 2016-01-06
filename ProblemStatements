@@ -1,0 +1,67 @@
+1. What are the letters in the english alphabet are not used as a first letter in the names of United States?
+    example: Alabama starts with A(letter A), California starts with C(Letter C); in 'ABC' B is unused.
+    What are the unused letters in the english alphabet to start the names of states in USA?
+    
+    Expected Answer: B, E, J, Q, W, X, Y, Z
+    
+    Data: Names of 50 States
+    
+    Alabama
+    Alaska
+    Arizona
+    Arkansas
+    California
+    Colorado
+    Connecticut
+    Delaware
+    Florida
+    Georgia
+    Hawaii
+    Idaho
+    Illinois
+    Indiana
+    Iowa
+    Kansas
+    Kentucky
+    Louisiana
+    Maine
+    Maryland
+    Massachusetts
+    Michigan
+    Minnesota
+    Mississippi
+    Missouri
+    Montana
+    Nebraska
+    Nevada
+    New Hampshire
+    New Jersey
+    New Mexico
+    New York
+    North Carolina
+    North Dakota
+    Ohio
+    Oklahoma
+    Oregon
+    Pennsylvania
+    Rhode Island
+    South Carolina
+    South Dakota
+    Tennessee
+    Texas
+    Utah
+    Vermont
+    Virginia
+    Washington
+    West Virginia
+    Wisconsin
+    Wyoming
+        
+2. Program a lottery machine. Systed need to tell what is the next random value?
+    Assume there are 20 people in a room to participate in an event based on their roll number call which ranges from 1 to 20.
+    Machine need to randomly call one by one number based on pure luck. Nobody knows who is the next till 19th person call.
+    (Inherently, No duplicates, No repetitions, Finite Set, Finite Iterations)
+    example: I can use this to distribute sweets or questions/quiz(Q.number is lottery) to the students in a buzzer round
+    +
+    Added complexity. It need to work for small set of crowd with large set of questions.
+      Like Stu-1=Ques-19, Stu-2=Ques-12, Stu-3=Ques3,Stu-1=Ques-14,Stu-2=Ques-4,Stu-3,Stu-1=Ques-2, and so on...
