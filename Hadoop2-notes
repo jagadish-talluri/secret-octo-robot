@@ -1,0 +1,367 @@
+Book: Learning Hadoop2
+Author: Garry Turkington
+Available: Feb 2015
+Pages: 382
+Hadooop Version Used in Book: 2.2
+
+IRead: Dec 2015 (after 10 months)
+Impala Version Available Now: 2.7
+
+JT Rating: 3/5
+Book Focused on: 
+Chapter to Focus:
+Chapters to Ignore:
+
+Hadoop2 Notes:
+
+Chap2-Storage:
+
+__inner_workings_of_HDFS__
+
+NameNode startup:
+	The NameNode actually stores two types of data about the filesystem:
+	1. The structure of the filesystem, that is, directory names, filenames, locations, and attributes
+	2. The blocks that comprise each file on the filesystem
+
+This data is stored in files that the NameNode reads at startup. 
+
+Note that the NameNode DOES NOT persistently store the mapping of the blocks that are stored on particular 
+
+DataNodes;
+
+NameNode relies on in-memory representation of the filesystem.
+
+Scaling Limitation of Name Node.
+
+We want to put more metadata in the name node.
+
+Assume a namenode RAM can handle only 1 million files names? then if we want another million files?
+
+NAMENODE FEDERATION is the answer for it.
+
+The main file written by the NameNode is called fsimage;
+
+This is the single most important piece of data in the entire cluster, as without it, the knowledge of how to 
+
+reconstruct all the data blocks into the usable filesystem is lost. This file is read into memory and all 
+
+future modifications to the filesystem are applied to this in-memory representation of the filesystem.
+
+The NameNode does not write out new versions of fsimage as new changes are applied after it is run; instead, it 
+
+writes another file called edits, which is a list of the changes that have been made since the last version of 
+
+fsimage was written.
+
+The NameNode startup process is to first read the fsimage file, then to read the edits file, and apply all the 
+
+changes stored in the edits file to the in-memory copy of fsimage. It then writes to disk a new up-to-date 
+
+version of the fsimage file and is ready to receive client requests.
+
+DataNode startup:
+
+When the DataNodes start up, they first catalog the blocks for which they hold copies. 
+
+The DataNode will perform some block consistency checking and then report to the NameNode the list of blocks 
+
+for which it has valid copies.
+
+Block replication:
+
+HDFS can also be configured to be able to determine whether given DataNodes are in the same physical hardware 
+
+rack or not. 
+
+Given smart block placement and this knowledge of the cluster topology, HDFS will attempt to place the 
+second replica on a different host but in the same equipment rack as the first and the 
+third on a host outside the rack. 
+
+Remember that replication is a strategy for resilience but is not a backup mechanism;
+
+if you have data mastered in HDFS that is critical, then you need to consider backup or other approaches that 
+
+give protection for errors, such as accidentally deleted files, against which replication will not defend.
+
+When the NameNode starts up and is receiving the block reports from the DataNodes,
+
+it will remain in safe mode until a configurable threshold of blocks (the default is 99.9 percent) have been 
+
+reported as live.
+
+While in safe mode, clients cannot make any modifications to the filesystem.
+
+__HDFS_command_line__
+
+Have a look at the -report command, which gives a listing of the state of the filesystem and all DataNodes:
+$ hdfs dfsadmin -report
+
+# some fun with encryption with key as CERA, put the below words in middle to get the new words
+cloudera => c + loud + era
+coursera => c + ours + era
+
+# easy to memorise u-g-w
+file attributes work the same as the user/group/world attributes on a Unix filesystem 
+
+# Note the new column between the file attributes and the owner; this is the replication factor of the file.
+-rw-r--r--   3 cloudera cloudera         12 2014-11-13 11:21 testdir/testfile.txt
+
+# The mkdir and chown steps require superuser privileges (sudo -u hdfs).
+$ sudo -u hdfs hdfs dfs –mkdir /user/cloudera
+$ sudo -u hdfs hdfs dfs –chown cloudera:cloudera /user/cloudera
+
+# default home directory (user/user-name)
+for cloudera user it is, /user/cloudera
+
+__protecting_file_system_metadata__
+
+fsimage file is crucial. if its gone hadoop cluster is gone.
+
+in hadoop1, a copy of fsimage + edits files are kept in NFS, synchronous write local+network folder
+	in the event of failure, that copy is used to bring the system back with manual intervention.
+
+secondary name node , is NOT a backup node or NOT a standby node
+	the Secondary NameNode was responsible only for periodically reading the latest version of the fsimage 
+
+and edits file and creating a new up-to-date fsimage with the outstanding edits applied. On a busy cluster, 
+
+this checkpoint could significantly speed up the restart of the NameNode by reducing the number of edits it had 
+
+to apply before being able to service clients.
+
+in hadoop2, 
+	Checkpoint nodes, which do the role previously performed by the Secondary NameNode
+	Backup NameNodes, which keep a local up-to-date copy of the filesystem metadata
+		the process to promote a Backup node to be the primary NameNode is still a multistage manual 
+
+process.
+
+hadoop2 High Availablity:
+
+It is actually an error to try to combine NameNode HA with the Checkpoint and Backup node mechanisms.
+
+The core idea is for a pair (currently no more than two are supported) of NameNodes configured in an 
+
+active/passive cluster.
+
+HDFS enables this HA through two mechanisms:
+	1.Providing a means for both NameNodes to have consistent views of the filesystem
+	2.Providing a means for clients to always connect to the master NameNode
+
+
+active and standby NameNodes keep their views of the filesystem consistent by 2 mechanisms:
+	1. NFS share
+	2. Quorum Journal Manager (QJM)
+
+NFS Share:
+	1. requires high-end and expensive hardware
+	2. NFS location becomes the primary location for the filesystem metadata
+	3. the active NameNode writes all filesystem changes to the NFS share
+	4. the standby node detects these changes and updates its copy of the filesystem metadata accordingly.
+
+QJM mechanism:
+
+
+	1. uses an external service (the Journal Managers) instead of a filesystem
+	2. The Journal Manager cluster is an odd number of services (3, 5, and 7 are the most common) running 
+
+on that number of hosts
+	3. All changes to the filesystem are submitted to the QJM service, 
+	4. and a change is treated as committed only when a majority of the QJM nodes have committed the change
+	5. The standby NameNode receives change updates from the QJM service and uses this information to keep 
+
+its copy of the filesystem metadata up to date.
+
+	6. The QJM mechanism does not require additional hardware as the Checkpoint nodes are lightweight and 
+
+can be co-located with other services.
+	7. There is also no single point of failure in the model
+	8. the QJM HA is usually the preferred option.
+	9. QJM only accepts connections from a single client.
+
+In either case, both in NFS-based HA and QJM-based HA, 
+	the DataNodes send block status reports to both NameNodes to ensure that both have up-to-date 
+
+information of the mapping of blocks to DataNodes.
+	Remember that this block assignment information is not held in the fsimage/edits data.
+
+Client configuration:
+
+	1. client is unaware of HA being used.
+	2. config files include both NameNodes
+	3. the mechanism to identify which is active is hidden to client
+	4. HDFS in Hadoop 2 identifies a nameservice ID for the NameNode within which multiple individual 
+
+NameNodes (each with its own NameNode ID) are defined for HA
+
+	the concept of nameservice ID is also used by NameNode federation
+
+How failover works?
+	in HA, the failover is significantly easier than in the case of Hadoop 1 or with Hadoop 2 Backup nodes, 
+
+where the transition to a new NameNode requires substantial manual effort.
+
+Regardless of whether the failover is triggered manually or automatically,
+	it has two main phases:
+	1. confirmation that the previous master is no longer serving requests 
+	2. the promotion of the standby to be the master.
+
+greatest risk in a failover: to have a period in which both NameNodes are servicing requests
+
+the need for the failover is identified in the first place:
+
+	it is possible that conflicting changes might be made to the filesystem on the two NameNodes or that 
+
+they might become out of sync.
+	Even though this should not be possible if the QJM is being used (it only ever accepts connections from 
+
+a single client), out-of-date information might be served to clients, who might then try to make incorrect 
+
+decisions based on this stale metadata.
+
+This is, of course, particularly likely if the previous master NameNode is behaving incorrectly in some way
+------------------------------------
+To ensure only one NameNode is active at any time, a fencing mechanism is used to validate that the existing 
+
+NameNode master has been shut down.
+
+The simplest included mechanism will try to ssh into the NameNode host and actively kill the process though a 
+
+custom script can also be executed, so the mechanism is flexible.
+
+The failover will not continue until the fencing is successful and the system has confirmed that the previous 
+
+master NameNode is now dead and has released any required resources.
+-----------------------------------
+Once fencing succeeds,
+
+the standby NameNode becomes the master and will start writing to the NFS-mounted fsimage and edits logs if NFS 
+
+is being used for HA
+
+or standby NameNode will become the single client to the QJM if that is the HA mechanism
+
+__apache_zookeeper__
+
+inspired from google chubby.
+
+started as a subcomponent of HBASE.
+
+In any Distributed System:
+	a series of steps needed for sure + they need to be always correct
+	1. handling shared locks
+	2. detecting component failure
+	3. support leader election within a group of collaborated services.
+
+1. ZooKeeper runs as a cluster of instances referred to as an ensemble.
+2. The ensemble provides a data structure, which is somewhat analogous to a filesystem.
+3. Each location in the structure is called a ZNode
+4. it can have children as if it were a directory but can also have content as if it were a file
+5. maximum amount of data can be stored in a ZNode is 1 MB
+6. At any point in time, one server in the ensemble is the master and makes all decisions about client requests
+7. request is only committed when a majority of the ensemble have committed the change
+
+A command-line client to ZooKeeper called zookeeper-client in the Cloudera VM; note that in the vanilla 
+
+ZooKeeper distribution it is called zkCli.sh.
+If you run it with no arguments, it will connect to the ZooKeeper server running on the local machine. 
+
+$ create /zk-test '' 
+$ create /zk-test/child1 'sampledata'
+$ get /zk-test/child1 
+
+Watcher:
+	The client can also register a watcher on a given ZNode—this will raise an alert if the ZNode in 
+
+question changes, either its data or children being modified.
+
+ZNodes can additionally be created as both sequential and ephemeral nodes.
+
+__automatic_namenode_failover__
+
+
+
+
+__HDFS_snapshots__
+
+snapshot==recycle bin, data is not deleted, but is not visible in the folder
+
+snapshots can be taken at /path/level. not only at filesystem level.
+
+if either parent folder of child folder is snapshotted then you cannot create a snapshot for the new dir.
+
+The commands we are going to illustrate need to be executed with superuser privileges, which can be obtained 
+
+with 
+$ sudo -u hdfs
+
+By default, HDFS will copy any deleted files into a .Trash directory in the user's home directory, which helps 
+
+to defend against slipping fingers. These files can be removed through hdfs dfs -expunge or will be 
+
+automatically purged in 7 days by default.
+
+__hadoop_filesystems__
+
+Until now, we referred to HDFS as the Hadoop filesystem. In reality, Hadoop has a rather abstract notion of 
+
+filesystem. HDFS is only one of several implementations of the "org.apache.hadoop.fs.FileSystem" Java abstract 
+
+class.
+
+There exist two implementations of the S3 filesystem:
+
+1. Native—s3n—is used to read and write regular files. Data stored using s3n can be accessed by any tool and 
+
+conversely can be used to read data generated by other S3 tools. s3n cannot handle files larger than 5TB or 
+
+rename operations.
+
+2. Much like HDFS, the block-based S3 filesystem stores files in blocks and requires an S3 bucket to be 
+
+dedicated to the filesystem. Files stored in an S3 filesystem can be larger than 5 TB, but they will not be 
+
+interoperable with other S3 tools. Additionally block-based S3 supports rename operations.
+
+Hadoop Interfaces: Access Methodologies
+
+command line: hdfs
+
+Java: java API
+
+non Java: apache thrift 
+
+	Apache Thrift is a framework for building cross-language software through data serialization and remote 
+
+method invocation mechanisms. The Hadoop Thrift API, available in contrib, exposes Hadoop filesystems as a 
+
+Thrift service. This interface makes it easy for non-Java code to access data stored in a Hadoop filesystem.
+
+other than HDFS? like s3 access: libhdfs
+
+	Libhdfs is a C library that, despite its name, can be used to access any Hadoop filesystem and not just 
+
+HDFS. It is written using the Java Native Interface (JNI) and mimics the Java FileSystem class.
+
+
+__managing_and_serializing_data__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
