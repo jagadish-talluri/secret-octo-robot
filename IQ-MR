@@ -235,3 +235,22 @@ Ans:  Snapshots are available from hadoop2.
       Snapshots are like recycle-bins. Data is not deleted, meta-data become invisible. You cannot see the file but it is there.
       Snapshots can be applied at a folder/path level instead of entire file system
       Snapshots cannot be created if either parent folder or child folder is already snapshotted.
+
+52. What are the changes/upgrades done to HDFS in hadoop2?
+Ans:
+  1. NameNode High Availability - Active/Standy configuration
+  2. NameNode Federation - Name Spaces are monitored by specific NameNodes
+  3. HDFS Snapshot - Able to create a snapshot for the directory
+  
+53. What happens when you delete a file in hdfs in hadoop2?
+Ans: By default, 
+        HDFS will copy any deleted files into a ".Trash" directory in the user's home directory, 
+        which helps to defend against slipping fingers.
+        
+54. How to delete the files in .Trash folder?
+Ans: 
+      $ hdfs dfs -expunge
+      
+55. When the .Trash folder empties itself? What is the frequency?
+Ans: 7 Days by default.
+
