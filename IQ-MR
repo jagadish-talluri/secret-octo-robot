@@ -251,6 +251,6 @@ Ans: By default,
 Ans: 
       $ hdfs dfs -expunge
       
-55. When the .Trash folder empties itself? What is the frequency?
+55. When the .Trash folder empties the deleted files permanently(purged)? What is the frequency?
 Ans: 7 Days by default.
 
