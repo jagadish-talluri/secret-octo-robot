@@ -223,3 +223,15 @@ Ans:
       lzo, Use only with text files
       bzip2, Not a top choice but Impala can read input files
       deflate, Not a first or second choice; however, can read input files
+
+50. How to use super user commands in HDFS?
+Ans:
+  $ sudo -u hdfs
+  example:
+    $ sudo -u hdfs hdfs dfs -mkdir /user/jagadish
+    
+51. What is snapshot in HDFS? How to do it? Does it there in Hadoop1?
+Ans:  Snapshots are available from hadoop2.
+      Snapshots are like recycle-bins. Data is not deleted, meta-data become invisible. You cannot see the file but it is there.
+      Snapshots can be applied at a folder/path level instead of entire file system
+      Snapshots cannot be created if either parent folder or child folder is already snapshotted.
