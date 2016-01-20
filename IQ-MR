@@ -254,3 +254,6 @@ Ans:
 55. When the .Trash folder empties the deleted files permanently(purged)? What is the frequency?
 Ans: 7 Days by default.
 
+56. How many snapshots can be created in a directory?
+Ans: Till 65535
+
