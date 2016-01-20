@@ -7,35 +7,21 @@ IRead: Dec 2015 (after 2 years)
 Impala Version Available: 2.3
 
 JT Rating: 3/5
-Book Focused on: Cloudera CDH and Cloudera Manager; other distros and installation methods wont get much help 
-
-here.
+Book Focused on: Cloudera CDH and Cloudera Manager; other distros and installation methods wont get much help here.
 
 Chapters to Ignore: 3,4 (they teach SQL)
 
 Impala Notes:
 
-Impala is for a new breed of data wranglers who want to process the data at lightening-fast speed using 
+Impala is for a new breed of data wranglers who want to process the data at lightening-fast speed using traditional SQL knowledge.Impala provides data wranglers a Massively Parallel Processing (MPP) query engine, which runs natively on Hadoop.
 
-traditional SQL knowledge.Impala provides data wranglers a Massively Parallel Processing (MPP) query engine, 
-
-which runs natively on Hadoop.
-
-The biggest advantage of Impala is that data transformation or data movement is not required for data stored on 
-
-Hadoop. 
+The biggest advantage of Impala is that data transformation or data movement is not required for data stored on Hadoop. 
 
 Impala is written in C++.However, Impala uses Java to communicate with various Hadoop components.
 
-Impala uses Hive to read a table's metadata.Impala provides a single repository and metadata store, which 
+Impala uses Hive to read a table's metadata.Impala provides a single repository and metadata store, which enables more users to interact with a large amount of data.
 
-enables more users to interact with a large amount of data.
-
-The fact is that only the Hive metastore is required for Impala to function and Hive can be installed on some 
-
-other client machine.As long as Impala can access the Hive metastore, it will function as expected. Therefore, 
-
-MySQL is required for Impala.
+The fact is that only the Hive metastore is required for Impala to function and Hive can be installed on some other client machine.As long as Impala can access the Hive metastore, it will function as expected. Therefore, MySQL is required for Impala.
 
 Architecture,
 	Impala Daemon - slave,co-ordinator for a specific query
@@ -79,23 +65,15 @@ Syntax,
 
 Known Issues/Difficulties:
 
-Besides CDH, Impala can run on other Hadoop distributions by compiling the source code and then configuring it 
+Besides CDH, Impala can run on other Hadoop distributions by compiling the source code and then configuring it correctly as required.
 
-correctly as required.
-
-Impala cannot run queries that have a working set greater than the maximum available RAM.In a case when memory 
-
-is not sufficient, Impala will not be able to process the query and the query will be canceled.
+Impala cannot run queries that have a working set greater than the maximum available RAM.In a case when memory is not sufficient, Impala will not be able to process the query and the query will be canceled.
 
 To achieve full performance with Impala, the user must make sure that Impala is not running as a root user.
 
-As per Cloudera advice, it is not a good choice to install Impala in Namenode, so please do not do so, because 
+As per Cloudera advice, it is not a good choice to install Impala in Namenode, so please do not do so, because any problem caused by Impala may bring your Hadoop cluster down.
 
-any problem caused by Impala may bring your Hadoop cluster down.
-
-Because the data file is read directly from HDFS, if there are any changes to the data file, you must use the 
-
-REFRESH statement impala-shell so that Impala can recognize the changes and can use the updated data file.
+Because the data file is read directly from HDFS, if there are any changes to the data file, you must use the REFRESH statement impala-shell so that Impala can recognize the changes and can use the updated data file.
 
 Impala Daemon,
 	runs on each DataNode
@@ -103,11 +81,7 @@ Impala Daemon,
 	responsible for processing the queries
 	Hue
 
-A query can be submitted to any impalad running on any node, and that particular node serves as a "coordinator 
-
-node" for that query.When queries are processing on various impalad instances, all impalad instances return the 
-
-result to the central coordinator node.
+A query can be submitted to any impalad running on any node, and that particular node serves as a "coordinator node" for that query.When queries are processing on various impalad instances, all impalad instances return the result to the central coordinator node.
 
 Impala StateStore,
 	single process
@@ -118,17 +92,11 @@ Impala StateStore,
 	statestore deamon relays to all daemons
 	statestored is not mandatory, if this fails in the middle still impala works with less robustness
 	
-In the event of a node failure due to any reason, statestored updates all other nodes about this failure, and 
-
-once such a notification is available to other impalad no other Impala daemon assigns any further queries to 
-
-the affected node.
+In the event of a node failure due to any reason, statestored updates all other nodes about this failure, and once such a notification is available to other impalad no other Impala daemon assigns any further queries to the affected node.
 
 Impala metadata and metastore,
 	Apache Hive shares the same metastore
-Impala also maintains information about the data files stored on HDFS.Each Impala node caches all of the 
-
-metadata locally ,helps in providing such information instantly.
+Impala also maintains information about the data files stored on HDFS.Each Impala node caches all of the metadata locally ,helps in providing such information instantly.
 
 	Monitors HDFS files and Hive Tables for changes. 
 	REFRESH, INVALIDATE METADATA -- impala uses these to refresh the meta data when changes happen
@@ -137,26 +105,14 @@ Request,
 	impala shell and hue listen to the SAME PORT
 	ODBC/JDBC uses different PORT
 
-Apache Hive provides various kinds of file-type processing support to Impala. When using formats other than a 
-
-text file, that is, RCFile, Avro, and SequenceFile, the data must be loaded through Hive first and then Impala 
-
-can query the data from these file formats.
+Apache Hive provides various kinds of file-type processing support to Impala. When using formats other than a text file, that is, RCFile, Avro, and SequenceFile, the data must be loaded through Hive first and then Impala can query the data from these file formats.
 
 HBASE,
 
-To use HBase, first the user defines tables in Impala and then maps them to the equivalent HBase tables. Once a 
-
-table relationship is established, users can submit queries into the HBase table through Impala. Join 
-
-operations can also be formed including HBase and Impala tables.
+To use HBase, first the user defines tables in Impala and then maps them to the equivalent HBase tables. Once a table relationship is established, users can submit queries into the HBase table through Impala. Join operations can also be formed including HBase and Impala tables.
 
 Authentication and Logging:
-	Query information is logged into the audit log in JSON format, using a single line per SQL query. Each 
-
-logged query can be accessed through SQL syntax by providing any combination of session ID, user name, and 
-
-client network address.
+	Query information is logged into the audit log in JSON format, using a single line per SQL query. Each logged query can be accessed through SQL syntax by providing any combination of session ID, user name, and client network address.
 
 each statement must end with a semicolon in the Impala shell.
 
@@ -198,15 +154,7 @@ Data Types,
 
 Impala does not support using DISTINCT in more than one aggregate function in the same query
 
-REFRESH: In a multimode environment, the data files reside on multiple DataNodes while the Impala shell is 
-
-interacting with the Impala daemon (which acts as the data coordinator for all other nodes). Data files can be 
-
-updated on other nodes without any update event or information to the coordinator. In this situation, using the 
-
-REFRESH clause with the table name loads the latest metadata and block location of the data files for a 
-
-particular table.
+REFRESH: In a multimode environment, the data files reside on multiple DataNodes while the Impala shell is interacting with the Impala daemon (which acts as the data coordinator for all other nodes). Data files can be updated on other nodes without any update event or information to the coordinator. In this situation, using the REFRESH clause with the table name loads the latest metadata and block location of the data files for a particular table.
 
 
 You cannot use a dash (-) with the schema name.
@@ -221,45 +169,27 @@ However, for the subsequent queries, you will see a tremendous increase in the s
 
 Troubleshooting:
 
-With Impala installed using Cloudera Manager, you can use the Impala debug web server at port 25000 to check 
-
-the Impala configuration.
+With Impala installed using Cloudera Manager, you can use the Impala debug web server at port 25000 to check the Impala configuration.
 
 	Block Locality issue, performance:
-	Unknown disk id. This will negatively affect performance. Check your hdfs settings to enable block 
-
-location metadata
+	Unknown disk id. This will negatively affect performance. Check your hdfs settings to enable block location metadata
 
 	Native checksumming Issue:
 	Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 	
 	*Refresh Issue:
-	Queries could return wrong or limited results. This is possible if metadata is not refreshed in the 
-
-Impala cluster. Using the REFRESH statement, you can sync Hive metadata to solve this problem. Also, make sure 
-
-that Impala daemons are running on all the nodes.
+	Queries could return wrong or limited results. This is possible if metadata is not refreshed in the Impala cluster. Using the REFRESH statement, you can sync Hive metadata to solve this problem. Also, make sure that Impala daemons are running on all the nodes.
 
 	*Out-of-memory:
-	If you find that the JOIN operations are failing, it is very mush possible that you are hitting the 
+	If you find that the JOIN operations are failing, it is very mush possible that you are hitting the memory limitation. While checking Impala logs, you might look for Out of Memory errors logged to confirm memory limitation-specific errors.
 
-memory limitation. While checking Impala logs, you might look for Out of Memory errors logged to confirm memory 
-
-limitation-specific errors.
-
-*Sometimes, when a query fails in Impala and you could not find a reason, try running the same query in Hive to 
-
-see if it works there or not. If it works in Hive, it could be an Impala-specific configuration or a limitation 
-
-issue.
+*Sometimes, when a query fails in Impala and you could not find a reason, try running the same query in Hive to see if it works there or not. If it works in Hive, it could be an Impala-specific configuration or a limitation issue.
 
 *If you start Impala under the root user, it will also impact the Impala execution by disabling direct reading.
 
 
 	Internal and External Ports: check the port numbers
-[Cloudera ODBC Connector 1.x uses Impala port 21000 to create connections; however, the latest Cloudera ODBC 
-
-Connector 2.0 and 2.5 connects to Impala on the 21050 port.]
+[Cloudera ODBC Connector 1.x uses Impala port 21000 to create connections; however, the latest Cloudera ODBC Connector 2.0 and 2.5 connects to Impala on the 21050 port.]
 
 Input File Types Support: List is there in 6th Chapter.
 
@@ -267,52 +197,44 @@ Impala provides the web interface for the Impala process at the 25000 port.
 the statestore web interface is available at the 25010 port.
 
 Using the Impala Maintenance Mode:
-When making specific changes to the cluster or any specific component, Maintenance Mode helps to reduce 
+When making specific changes to the cluster or any specific component, Maintenance Mode helps to reduce unnecessary change notifications to all users and keeps the noise due to maintenance very low. 
 
-unnecessary change notifications to all users and keeps the noise due to maintenance very low. 
-
-Impala is faster because the data is processed in memory; therefore, the memory requirement for Impala-
-
-installed Hadoop clusters is comparatively higher.
+Impala is faster because the data is processed in memory; therefore, the memory requirement for Impala-installed Hadoop clusters is comparatively higher.
 
 
 *UDFs in impala are written in C++. It can support Hive UDFs but they are 10 times slower.
 
 Why Impala is Fast?
-1.While processing SQL-like queries, Impala does not write intermediate results on disk; instead full SQL 
+1.While processing SQL-like queries, Impala does not write intermediate results on disk; instead full SQL processing is done in memory, which makes it faster.
+2.With Impala, the query starts its execution instantly compared to MapReduce, which may take significant time to start processing larger SQL queries and this adds more time in processing.
+3.Impala Query Planner uses smart algorithms to execute queries in multiple stages in parallel nodes to provide results faster, avoiding sorting and shuffle steps, which may be unnecessary in most of the cases.
+4.Impala has information about each data block in HDFS, so when processing the query, it takes advantage of this knowledge to distribute queries more evenly in all DataNodes.
+5.Another key reason for fast performance is that Impala first generates assembly-level code for each query. The assembly code executes faster than any other code framework because while Impala queries are running natively in memory, having a framework will add additional delay in the execution due to the framework overhead.
 
-processing is done in memory, which makes it faster.
-2.With Impala, the query starts its execution instantly compared to MapReduce, which may take significant time 
-
-to start processing larger SQL queries and this adds more time in processing.
-3.Impala Query Planner uses smart algorithms to execute queries in multiple stages in parallel nodes to provide 
-
-results faster, avoiding sorting and shuffle steps, which may be unnecessary in most of the cases.
-4.Impala has information about each data block in HDFS, so when processing the query, it takes advantage of 
-
-this knowledge to distribute queries more evenly in all DataNodes.
-5.Another key reason for fast performance is that Impala first generates assembly-level code for each query. 
-
-The assembly code executes faster than any other code framework because while Impala queries are running 
-
-natively in memory, having a framework will add additional delay in the execution due to the framework 
-
-overhead.
-
---Impala processes all queries in memory, so memory limitation on nodes is definitely a factor. You must have 
-
-enough memory to support the resultant dataset, which could grow multifold during complex JOIN operations.
---If a query starts processing the data and the resultant dataset cannot fit in the available memory, the query 
-
-will fail.
+--Impala processes all queries in memory, so memory limitation on nodes is definitely a factor. You must have enough memory to support the resultant dataset, which could grow multifold during complex JOIN operations.
+--If a query starts processing the data and the resultant dataset cannot fit in the available memory, the query will fail.
 
 *During query processing, unencrypted data is sometimes transmitted between Impala daemons.
-*At the time of writing this book, Hadoop 2.0 achieved the GA milestone; however, Hadoop-2.0-based YARN is not 
+*At the time of writing this book, Hadoop 2.0 achieved the GA milestone; however, Hadoop-2.0-based YARN is not integrated with Impala.
+*Custom Hive SerDes classes are not supported and only native file formats are supported using the built-in SerDes.
 
-integrated with Impala.
-*Custom Hive SerDes classes are not supported and only native file formats are supported using the built-in 
+Administration:
 
-SerDes.
+Impala debugging web interface at port 25000.
+
+**A specific node failure will impact only those query segments that were distributed on the affected machine because one single query is distributed across multiple nodes. In this situation, re-execution of the same query will allow the system to recover from the problem.
+
+Cloudera Manager will help you spend your crucial time working with data transformation rather than cluster administration.
+
+	Performance:
+	1. Enabling block location tracking
+	2. Enabling native checksumming
+	3. Enabling Impala to perform short-circuit read on DataNode
+	4. Adding more Impala nodes to achieve higher performance
+	5. Optimizing memory usage during query execution
+	6. Query execution dependency on memory
+	7. Using resource isolation
+
 
 Bibiliography:
 http://hortonworks.com/blog/impala-vs-hive-performance-benchmark/
