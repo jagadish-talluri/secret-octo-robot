@@ -257,3 +257,5 @@ Ans: 7 Days by default.
 56. How many snapshots can be created in a directory?
 Ans: Till 65535
 
+55. Internally the temporary outputs of maps are stored in which location and in which format?
+Ans: Stored in - Local machine; Stored as - Sequence File
