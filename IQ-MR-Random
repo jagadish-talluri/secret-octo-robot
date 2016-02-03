@@ -1,0 +1,172 @@
+Apache hadoop online test
+
+Congratulations – you have completed Apache hadoop online test.
+
+You scored 180 points out of 210 points total.
+
+Your performance has been rated as Very Good.
+
+Your obtained grade is
+
+Your answers are shown below:
+
+
+1. Indentify the number of failed task attempts you can expect when you run the job with mapred.max.map.attempts set to 4: and total number of map is 5
+
+You will have forty-eight failed task attempts
+You will have seventeen failed task attempts
+You will have five failed task attempts
+You will have twenty failed task attempts
+There will be four failed task attempts for each of the five file splits.
+
+2. Which best describes how TextInputFormat processes input files and line breaks?
+
+Input file splits may cross line breaks. A line that crosses file splits is read by the RecordReader
+of the split that contains the beginning of the broken line.
+Input file splits may cross line breaks. A line that crosses file splits is read by the RecordReader of the split that contains the end of the broken line.
+The input file is split exactly at the line breaks, so each RecordReader will read a series of complete lines.
+Input file splits may cross line breaks. A line that crosses file splits is read by the RecordReaders of both splits containing the broken line.
+As the Map operation is parallelized the input file set is first split to several pieces called FileSplits. If an individual file is so large that it will affect seek time it will be split to several Splits. The splitting does notknow anything about the input file’s internal logical structure, for example line-oriented text files are split on arbitrary byte boundaries. Then a new map task is created per FileSplit.
+
+3. In a MapReduce job, you want each of your input files processed by a single map task. How do you configure a MapReduce job so that a single map task processes each input file regardless of how many blocks the input file occupies?
+
+Increase the parameter that controls minimum split size in the job configuration.
+Write a custom MapRunner that iterates over all key-value pairs in the entire file.
+Set the number of mappers equal to the number of input files you want to process.
+Write a custom FileInputFormat and override the method isSplitable to always return false.
+FileInputFormat is the base class for all file-based InputFormats. This provides a
+generic implementation of getSplits(JobContext). Subclasses of FileInputFormat can also override
+the isSplitable(JobContext, Path) method to ensure input-files are not split-up and are processed
+as a whole by Mappers.
+
+4. Indentify which best defines a SequenceFile?
+
+A SequenceFile contains a binary encoding of an arbitrary number of homogeneous Writable
+objects
+A SequenceFile contains a binary encoding of an arbitrary number of heterogeneous Writable
+objects
+A SequenceFile contains a binary encoding of an arbitrary number of WritableComparable
+objects, in sorted order
+A SequenceFile contains a binary encoding of an arbitrary number key-value pairs. Each key
+must be the same type. Each value must be the same type.
+SequenceFile is a flat file consisting of binary key/value pairs.
+
+5. Can you use MapReduce to perform a relational join on two large tables sharing a key? Assume that the two tables are formatted as comma-separated files in HDFS.
+
+Yes, but only if one of the tables fits into memory
+Yes
+No, MapReduce cannot perform relational operations
+No, but it can be done with either Pig or Hive.
+(Relational join)Map side and reduce side join both possible.
+
+6. Given a directory of files with the following structure: line number, tab character, string: Example: 1    abialkjfjkaoasdfjksdlkjhqweroij 2   kadfjhuwqounahagtnbvaswslmnbfgy 3   kjfteiomndscxeqalkzhtopedkfsikj You want to send each line as one record to your Mapper. Which InputFormat should you use to complete the line: conf.setInputFormat (____.class) ; ?
+
+SequenceFileAsTextInputFormat
+SequenceFileInputFormat
+KeyValueFileInputFormat
+BDBInputFormat
+KeyValueFileInputFormat  key : up to 1st tab separator and value :  Remaining lines
+
+7. The Hadoop framework provides a mechanism for coping with machine issues such as faulty configuration or impending hardware failure. MapReduce detects that one or a number of machines are performing poorly and starts more copies of a map or reduce task. All the tasks run simultaneously and the task finish first are used. This is called:
+
+Combine
+IdentityMapper
+IdentityReducer
+Speculative Execution
+8. Identify the utility that allows you to create and run MapReduce jobs with any executable or script as the mapper and/or the reducer?
+
+Oozie
+Flume
+Hadoop Streaming
+Sqoop
+Hadoop streaming is a utility that comes with the Hadoop distribution. The utility allows you to create and run Map/Reduce jobs with any executable or script as the mapper and/or the reducer.
+
+9. Assuming default settings, which best describes the order of data provided to a reducer’s reduce method
+
+The keys given to a reducer aren’t in a predictable order, but the values associated with those keys always are
+Both the keys and values passed to a reducer always appear in sorted order.
+Neither keys nor values are in any predictable order.
+The keys given to a reducer are in sorted order but the values associated with each key are in no predictable order
+10. You need to create a job that does frequency analysis on input data. You will do this by writing a Mapper that uses TextInputFormat and splits each value (a line of text from an input file) into individual characters. For each one of these characters, you will emit the character as a key and an InputWritable as the value. As this will produce proportionally more intermediate data than input data, which two resources should you expect to be bottlenecks?
+
+Processor and network I/O
+Disk I/O and network I/O
+Processor and RAM
+Processor and disk I/O
+11. MapReduce v2 (MRv2/YARN) is designed to address which two issues?
+
+Single point of failure in the NameNode.
+Resource pressure on the JobTracker.
+Ability to run frameworks other than MapReduce, such as MPI.
+Standardize on a single MapReduce API.
+12. What data does a Reducer reduce method process?
+
+All the data in a single input file
+All data produced by a single mapper.
+All data for a given key, regardless of which mapper(s) produced it.
+All data for a given value, regardless of which mapper(s) produced it.
+Reducing lets you aggregate values together. A reducer function receives an iterator of input values from an input list. It then combines these values together, returning a single output value. All values with the same key are presented to a single reduce task.
+
+13. You are developing a combiner that takes as input Text keys, IntWritable values, and emits Text keys, IntWritable values. Which interface should your class implement?
+
+Combiner Text, IntWritable, Text, IntWritable
+Mapper Text, IntWritable, Text, IntWritable
+Reducer Text, Text, IntWritable, IntWritable
+Reducer Text, IntWritable, Text, IntWritable
+14. You have user profile records in your OLPT database, that you want to join with web logs you have already ingested into the Hadoop file system. How will you obtain these user records?
+
+HDFS command
+Sqoop import
+Ingest with Flume agents
+Pig LOAD command
+Sqoop is used to retrieve the OLTP records into hadoop
+
+15. When is the earliest point at which the reduce method of a given Reducer can be called?
+
+As soon as at least one mapper has finished processing its input split.
+As soon as a mapper has emitted at least one record.
+Not until all mappers have finished processing all records.
+It depends on the InputFormat used for the job.
+In a MapReduce job reducers do not start executing the reduce method until the all Map jobs have completed. Reducers start copying intermediate key-value pairs from the mappers as soon as they are available. The programmer defined reduce method is called only after all the mappers have finished.
+
+16. You want to understand more about how users browse your public website, such as which pages they visit prior to placing an order. You have a farm of 200 web servers hosting your website. How will you gather this data for your analysis?
+
+Ingest the server web logs into HDFS using Flume
+Write a MapReduce job, with the web servers for mappers, and the Hadoop cluster nodes for reduces.
+Import all users’ clicks from your OLTP databases into Hadoop, using Sqoop.
+Channel these clickstreams inot Hadoop using Hadoop Streaming.
+Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.
+
+17. All keys used for intermediate output from mappers must:
+
+Implement a splittable compression algorithm.
+Be a subclass of FileInputFormat.
+Implement WritableComparable
+Override isSplitable.
+The MapReduce framework operates exclusively on <key, value> pairs, that is, the framework views the input to the job as a set of <key, value> pairs and produces a set of <key, value> pairs as the output of the job, conceivably of different types.
+The key and value classes have to be serializable by the framework and hence need to implement the Writable interface. Additionally, the key classes have to implement the WritableComparable interface to facilitate sorting by the framework.
+
+18. A client application creates an HDFS file named foo.txt with a replication factor of 3. Identify which best describes the file access rules in HDFS if the file has a single block that is stored on data nodes A, B and C?
+
+The file will be marked as corrupted if data node B fails during the creation of the file
+Each data node locks the local file to prohibit concurrent readers and writers of the file
+Each data node stores a copy of the file in the local file system with the same name as the HDFS file.
+The file can be accessed if at least one of the data nodes storing the file is available
+HDFS keeps three copies of a block on three different datanodes to protect against true data corruption. HDFS also tries to distribute these three replicas on more than one rack to protect against data availability issues. The fact that HDFS actively monitors any failed datanode(s) and upon failure detection immediately schedules re-replication of blocks (if needed) implies that three copies of data on three different nodes is sufficient to avoid corrupted files.
+
+19. What is the disadvantage of using multiple reducers with the default HashPartitioner and distributing your workload across you cluster?
+
+You will not be able to compress the intermediate data.
+You will longer be able to take advantage of a Combiner.
+By using multiple reducers with the default HashPartitioner, output files may not be in globally
+sorted order.
+There are no concerns with this approach. It is always advisable to use multiple reduces.
+Multiple reducers and total ordering
+
+20. You have the following key-value pairs as output from your Map task: (the, 1) (fox, 1) (faster, 1) (than, 1) (the, 1) (dog, 1) How many keys will be passed to the Reducer’s reduce method?
+
+Six
+Five
+Four
+One
+the 1 and the 1 will be grouped and sorted into one so five
