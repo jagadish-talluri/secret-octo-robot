@@ -14,7 +14,7 @@ public class ChitPick {
 		String input = userInput.nextLine();
 		int nOfQuestions = Integer.parseInt(input);
 		
-		ArrayList al = new ArrayList();
+		ArrayList<Integer> al = new ArrayList<Integer>();
 
 		// create an arraylist with the user entered size and fill it with numbers		
 		if(nOfQuestions != 0)
@@ -37,6 +37,7 @@ public class ChitPick {
 		}
 	
 		System.out.println("\n===Game Over===");
+		userInput.close();
 	}
 	
 
