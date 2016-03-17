@@ -1,0 +1,39 @@
+Learning Spark:
+--------------
+
+How to configure error free code-file examples in eclipse from the book?
+Ans:
+	1. download code-files-zip from here, https://github.com/databricks/learning-spark
+	2. add them via import to your eclipse project
+	3. download the below libraries to remove errors
+		a. JDK 1.7 or higher (mostly you already have it)
+		b. spark 1.3 or above (get it from maven)
+		c. scala 2.10.3 or above (get it from maven)
+		d. apache-commons-lang.jar from here, http://www.java2s.com/Code/Jar/a/Downloadapachecommonslangjar.htm
+		e. hadoop-common-2.7.1 or above (get it from maven)
+	4. now you can change the package declaration as per the name
+	5. check wordcount example for errors
+	
+What is "pass function as a parameter in java"?
+Ans:
+	http://stackoverflow.com/questions/4685563/how-to-pass-a-function-as-a-parameter-in-java
+	http://stackoverflow.com/questions/2186931/java-pass-method-as-parameter
+	https://docs.oracle.com/javase/tutorial/java/javaOO/anonymousclasses.html
+	http://www.javatpoint.com/member-inner-class
+	http://spark.apache.org/examples.html
+	
+	
+How to install spark in windows?
+Ans:
+	http://nishutayaltech.blogspot.in/2015/04/how-to-run-apache-spark-on-windows7-in.html
+	
+How to do pagerank in spark?
+Ans:
+	http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-2-amp-camp-2012-standalone-programs.pdf
+	
+	
+	
+Some java related concepts?
+	
+	http://stackoverflow.com/questions/5865069/why-is-this-java-code-in-curly-braces-outside-of-a-method
+	http://stackoverflow.com/questions/1355810/how-is-an-instance-initializer-different-from-a-constructor
