@@ -37,3 +37,37 @@ Some java related concepts?
 	
 	http://stackoverflow.com/questions/5865069/why-is-this-java-code-in-curly-braces-outside-of-a-method
 	http://stackoverflow.com/questions/1355810/how-is-an-instance-initializer-different-from-a-constructor
+	
+Show a java example to illustrate PASSING FUNCTIONS methodology? [work around for functional programming language]
+Ans:
+	-----------------------------below is java code
+	public class CommandExample {
+		public static interface Command {
+			public abstract void execute(Object data);
+		}
+
+		public static class PrintCommand implements Command {
+			public void execute(Object data) {
+				System.out.println(data.toString());
+			}
+		}
+
+		public static void callCommand(Command command, Object data) {
+			command.execute(data);
+		}
+
+		public static void main(String... args) {
+			callCommand(new PrintCommand(), "hello world");
+		}
+	}
+	-----------------------------------------code ended["static" and "abstract" keywords are optional for "Command" and "PrintCommand"]
+	-----------------------------------------below another java code starts with same example in less lines
+	
+	
+	
+	
+	
+	
+	
+	
+	
