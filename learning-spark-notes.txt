@@ -1,0 +1,860 @@
+Learning Spark:
+--------------
+
+##################################################################################################
+#### Book: Learning Spark
+#### Author: Holden Karau, Andy Konwinski, Patrick Wendell & Matei Zaharia
+#### Available: Feb 2015
+#### Spark Version Used: 1.1.0
+#### 
+#### IRead: Mar 2016 (after 1 year), Duration: xx Days took to finish
+#### Spark Version Available: 1.6.1
+#### 
+#### JT Rating: x.x/5
+#### Book Focused on: 
+#### 
+#### Chapters to Ignore: (if any)
+##################################################################################################
+
+############################MY-TRACKS#############################################################
+CH_1_DONE => 3 hours (21-MAR-2016)
+CH_2_DONE => 2 hours (21-MAR-2016)
+CH_3_DONE => 5 hours (21-MAR-2016)
+
+
+##################################################################################################
+
+***************************************************************************************************
+****************************************CHAPTER-ONE************************************************
+***************************************************************************************************
+
+CHP-1-"Introduction to Data Analysis with Spark":
+
+What Is Apache Spark?
+Ans:
+	Apache Spark is a cluster computing platform designed to be fast and generalpurpose.
+	
+Why Is Apache Spark?
+Ans:
+	Spark extends the popular MapReduce model to efficiently support
+		more types of computations, including interactive queries and stream processing.
+	Spark runs on Memory as well as Disk.
+	Spark is designed to cover a wide range of workloads that previously
+		required separate distributed systems, including batch applications, iterative
+		algorithms, interactive queries, and streaming.
+	Spark is designed to be highly accessible, offering simple APIs in Python, Java, Scala,
+		and SQL, and rich built-in libraries.
+	Spark can run in Hadoop clusters and access any Hadoop data	source, including Cassandra.	
+
+A Unified Stack: 
+	Spark project contains multiple closely integrated components.
+
+Spark Core:
+	At its core, Spark
+		is a “computational engine” that is responsible for scheduling, distributing, and monitoring
+		applications consisting of many computational tasks across many worker
+		machines, or a computing cluster.
+	Spark Core is also home to the API that defines resilient distributed datasets
+		(RDDs), which are Spark’s main programming abstraction.
+		
+Spark SQL:
+	Spark SQL was added to Spark in version 1.0.
+	Spark SQL supports many sources of data, including Hive tables, Parquet, and JSON.
+	Spark SQL allows developers
+		to intermix SQL queries with the programmatic data manipulations supported by
+		RDDs in Python, Java, and Scala, all within a single application, thus combining SQL
+		with complex analytics.
+	
+	Shark:
+		Shark was an older SQL-on-Spark project out of the University of California, Berkeley,
+			that modified Apache Hive to run on Spark. It has now been replaced by Spark
+			SQL to provide better integration with the Spark engine and language APIs.
+		
+Spark Streaming:
+
+	Spark Streaming is a Spark component that enables processing of live streams of data.	
+	Spark Streaming provides an API for manipulating data streams that closely matches the Spark Core’s RDD API.
+	Underneath its API, Spark Streaming was designed to provide the
+		same degree of fault tolerance, throughput, and scalability as Spark Core.
+	
+MLlib:
+
+	Spark comes with a library containing common machine learning (ML) functionality, called MLlib.
+	MLlib provides multiple types of machine learning algorithms, including
+		classification, 
+		regression, 
+		clustering, 
+		and collaborative filtering, 
+		as well as supporting functionality 
+			such as model evaluation 
+			and data import.
+	All of these methods are designed to scale out across a cluster.
+	
+GraphX:
+
+	GraphX is a library for manipulating graphs and performing graph-parallel computations.
+	GraphX also provides various operators
+		for manipulating graphs (e.g., subgraph and mapVertices) and a library of
+		common graph algorithms (e.g., PageRank and triangle counting).
+	
+Cluster Managers:
+	
+	Spark is designed to efficiently scale up from one to many thousands of compute nodes.
+	Spark can run over a variety of cluster managers, 
+		including Hadoop YARN, Apache Mesos, and a simple cluster manager included 
+		in Spark itself called the Standalone Scheduler.
+		
+Who Uses Spark, and for What?
+	
+Data Science Tasks:
+	
+	While there is no standard definition, for our purposes a data scientist
+		is somebody whose main task is to analyze and model data. Data scientists may have
+		experience with SQL, statistics, predictive modeling (machine learning), and programming,
+		usually in Python, Matlab, or R.
+
+	Data scientists use their skills to analyze data with the goal of answering a question or
+		discovering insights.
+		
+	Spark enables data scientists to tackle problems with larger data sizes than they could before
+		with tools like R or Pandas. There is support for calling out to external programs in Matlab or R
+
+	For example, the initial investigation of a data scientist might lead to the creation of a 
+		production recommender system that is integrated into a web application and used to generate product suggestions to users. 
+	
+	Often it is a different person or team that leads the process of productizing the work of the data scientists,
+		and that person is often an engineer.
+
+Data Processing Applications: All other things like, to integrate them into production systems.
+	
+History of Spark:
+	
+	Unk, 2009 - Started at UC Berkeley
+	Mar, 2010 - Open Sourced
+	Jun, 2013 - Transferred to Apache Software Foundation (ASF)
+	
+Storage Layers for Spark:
+	
+	Spark can create distributed datasets from any file stored in the Hadoop distributed filesystem (HDFS) 
+		or other storage systems supported by the Hadoop APIs 
+			(including your local filesystem, 
+							Amazon S3, 
+							Cassandra, 
+							Hive, 
+							HBase, etc.).
+	It’s important to remember that Spark does not require Hadoop; 
+		it simply has support for storage systems implementing the Hadoop APIs.
+
+	Spark supports 
+		text files, 
+		SequenceFiles, 
+		Avro, 
+		Parquet, 
+		and any other Hadoop InputFormat.
+
+***************************************************************************************************
+****************************************CHAPTER-TWO************************************************
+***************************************************************************************************
+
+CHP-2-"Downloading Spark and Getting Started":
+
+	Spark can be used from Python, Java, or Scala.
+	Spark itself is written in Scala, and runs on the Java Virtual Machine (JVM).
+	Spark does not yet work with Python 3.
+	
+	This chapter will be with Spark running in local mode
+	
+	Spark can run in a variety of different modes, or environments. 
+		Beyond local mode, Spark can also be run on 
+		Mesos, 
+		YARN, 
+		or the Standalone Scheduler included in the Spark distribution.
+
+	Unlike most other shells, however, which let you manipulate data using the disk and
+		memory on a single machine, Spark’s shells allow you to interact with data that is distributed
+		on disk or in memory across many machines, and Spark takes care of automatically
+		distributing this processing.	
+		
+	Because Spark can load data into memory on the worker nodes, many distributed
+		computations, even ones that process terabytes of data across dozens of machines,
+		can run in a few seconds.
+
+Start Python Shell:
+
+	bin/pyspark
+	
+Start Scala Shell:
+
+	bin/spark-shell
+	
+	You may find the logging statements that get printed in the shell distracting. 
+	You can control the verbosity of the logging. To do this, you can create a file in the conf directory called log4j.properties. 
+	The Spark developers already include a template for this file called log4j.properties.template.
+
+	To make the logging less verbose, make a copy of
+		conf/log4j.properties.template called conf/log4j.properties and find the following line:
+
+		log4j.rootCategory=INFO, console
+		
+		convert to
+		
+		log4j.rootCategory=WARN, console
+
+	Using IPython:
+		
+		IPython is an enhanced Python shell that many Python users prefer,
+			offering features such as tab completion. You can find instructions
+			for installing it at http://ipython.org.
+
+		SET IPYTHON environment variable
+			IPYTHON=1 ./bin/pyspark
+			
+		To use the IPython Notebook, which is a web-browser-based version of IPython, use:
+			IPYTHON_OPTS="notebook" ./bin/pyspark
+			
+RDD: Resilient Distributed Datasets
+
+	In Spark, we express our computation through operations on distributed collections
+		that are automatically parallelized across the cluster. 
+	These collections are called resilient distributed datasets, or RDDs. 
+	RDDs are Spark’s fundamental abstraction for distributed data and computation.
+			
+	http://[ipaddress]:4040. 
+		You can access the Spark UI there and see all sorts of information about your tasks and cluster.
+
+Introduction to Core Spark Concepts:
+
+	At a high level, 
+		every Spark application consists of a driver program that launches various parallel operations on a cluster.
+
+	The driver program contains your application’s main function 
+		and defines distributed datasets on the cluster, then applies operations to them.
+		
+	Here, the driver program was the Spark shell itself, 
+		and you could just type in the operations you wanted to run.
+		
+	Driver programs access Spark through a SparkContext object, 
+		which represents a connection to a computing cluster. 
+		In the shell, a SparkContext is automatically created for you as the variable called "sc".
+		
+	Once you have a SparkContext, you can use it to build RDDs.
+
+	To run these operations, driver programs typically manage a number of nodes called "executors".
+		
+	Finally, a lot of Spark’s API revolves around passing functions to its operators to run them on the cluster	
+		
+	While we will cover the Spark API in more detail later, 
+		a lot of its magic is that function-based operations like filter also parallelize across the cluster.
+		
+	That is, Spark automatically takes your function (e.g., line.contains("Python")) 
+		and ships it to executor nodes. 
+	Thus, you can write code in a single driver program and automatically have parts of it run on multiple nodes.
+		
+	"Passing Functions to Spark"	: more details on other notes of mine.
+		If you are unfamiliar with the lambda or => syntax, 
+			it is a shorthand way to define functions inline in Python and Scala.
+		When using Spark in these languages, 
+			you can also define a function separately and then pass its name to Spark.
+		Passing functions to Spark is also possible in Java, 
+			but in this case they are defined as classes, implementing an interface called Function.
+
+		Java 8 introduces shorthand syntax called lambdas that looks similar to Python and Scala.
+
+Standalone Applications: (not interactive shells, code in files, ".java" like)
+
+	Apart from running interactively, Spark can be linked into standalone applications
+		in either Java, Scala, or Python.
+	The main difference from using it in the shell is that you need to initialize your own SparkContext. 
+		After that, the API is the same.
+
+	Eclipse allow you to directly add a Maven dependency to a project.
+	
+	In Python, you simply write applications as Python scripts, but you must run them
+		using the "bin/spark-submit" script included in Spark.
+		
+	The spark-submit script includes the Spark dependencies for us in Python.
+
+	Once you have linked an application to Spark, you need to import the Spark packages in your program and create a SparkContext. 
+		You do so by first creating a "SparkConf" object to configure your application, and then building a "SparkContext" for it.
+
+	Example 2-8. Initializing Spark in Scala
+		import org.apache.spark.SparkConf
+		import org.apache.spark.SparkContext
+		import org.apache.spark.SparkContext._
+
+		val conf = new SparkConf().setMaster("local").setAppName("My App")
+		val sc = new SparkContext(conf)
+
+	A "cluster URL", namely "local" in these examples, which tells Spark how to connect to a cluster. 
+		"local" is a special value that runs Spark on one thread on the local machine, without connecting to a cluster.
+
+	An "application name", namely "My App" in these examples. 
+		This will identify your application on the cluster manager’s UI if you connect to a cluster.
+
+	Additional parameters exist for configuring how your application executes or adding code to be shipped to the cluster
+	After you have initialized a SparkContext, 
+		you can use all the methods we showed before to create RDDs (e.g., from a text file) and manipulate them.
+	Finally, to shut down Spark, you can either call the stop() method on your SparkContext, 
+		or simply exit the application (e.g., with System.exit(0) or sys.exit()).
+
+Build:
+
+	We’ve marked the Spark Core dependency as provided so that, 
+		later on, when we use an assembly JAR we don’t include the spark-core JAR, which is already on the classpath of the workers.
+
+	<project>
+		<groupId>com.oreilly.learningsparkexamples.mini</groupId>
+		<artifactId>learning-spark-mini-example</artifactId>
+		<modelVersion>4.0.0</modelVersion>
+		<name>example</name>
+		<packaging>jar</packaging>
+		<version>0.0.1</version>
+		<dependencies>
+			<dependency> <!-- Spark dependency -->
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-core_2.10</artifactId>
+			<version>1.2.0</version>
+			<scope>provided</scope>
+			</dependency>
+		</dependencies>
+		<properties>
+			<java.version>1.6</java.version>
+		</properties>
+		<build>
+			<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration> 
+				</plugin>
+			</plugins>
+			</pluginManagement>
+		</build>
+	</project>
+
+	The spark-core package is marked as "provided" in case we package our application into an assembly JAR.
+
+	$ mvn clean && mvn compile && mvn package
+	
+Run:
+	
+	$ $SPARK_HOME/bin/spark-submit \
+	--class com.oreilly.learningsparkexamples.mini.java.WordCount \
+	./target/learning-spark-mini-example-0.0.1.jar \
+	./README.md ./wordcounts
+
+	A driver program 
+		creates a SparkContext and RDDs, 
+		and then runs parallel operations on them
+
+***************************************************************************************************
+**************************************CHAPTER-THREE************************************************
+***************************************************************************************************
+
+CHP-3-"Programming with RDDs":
+
+	An RDD is simply a distributed collection of elements.
+	
+	In Spark all work is expressed as either 
+		(1) creating new RDDs, 
+		(2) or transforming existing RDDs, 
+		(3) or calling operations on RDDs to compute a result.
+
+	Under the hood, Spark automatically 
+		(1) distributes the data contained in RDDs across your cluster 
+		(2) and parallelizes the operations you perform on them.
+
+	An RDD in Spark is simply an "immutable" distributed collection of objects.
+		
+	Each RDD is 
+		split into multiple "partitions", 
+		which may be computed on different nodes of the cluster. 
+	RDDs can contain 
+		any type of Python, Java, or Scala objects, 
+		including userdefined classes.
+		
+	Users create RDDs in two ways: 
+		(1) by loading an external dataset,  [	val abc = SparkContext.textFile(/abc.txt)	]
+		(2) or by distributing a collection of objects (e.g., a list or set) in their driver program. 
+			[	val lines = sc.parallelize(List("pandas", "i like pandas"))	], not widely used, as it need's entire data in memory.
+		
+	Once created, 
+		RDDs offer two types of operations: 
+			(1) transformations 
+			(2) and actions.
+		
+		Transformations construct a new RDD from a previous one. [i.e. it returns another RDD]
+			For example, one common transformation is filtering data that matches a literal string(AKA predicate).
+		
+		Actions, on the other hand, compute a result based on an RDD, 
+			and either return it to the driver program 
+			or save it to an external storage system (e.g., HDFS).
+			One example of an action we called earlier is "first()", which returns the first element in an RDD
+		
+	Transformations and actions are different 
+		because of the way Spark computes RDDs.
+	Although you can define new RDDs any time, Spark computes them only in a lazy fashion, 
+		that is, the first time they are used in an action.
+	This approach might seem unusual at first, 
+		but makes a lot of sense when you are working with Big Data.	
+		
+	If Spark were to load and store all the lines in the file as soon as we wrote lines = sc.textFile(...), 
+		it would waste a lot of storage space, given that we then immediately filter out many lines. 
+	Instead, once Spark sees the whole chain of transformations, it can compute just the data needed for its result. 
+	
+	In fact, for the first() action, 
+		Spark scans the file only until it finds the first matching line; it doesn’t even read the whole file.	[OPTIMIZATION]
+		
+	Finally, Spark’s RDDs are by default recomputed each time you run an action on them.
+		If you would like to reuse an RDD in multiple actions, you can ask Spark to persist it using RDD.persist().
+
+	After computing it the first time,
+		Spark will store the RDD contents in memory (partitioned across the machines in your cluster), 
+		and reuse them in future actions.
+	Persisting RDDs on disk instead of memory is also possible.
+
+	The behavior of not persisting by default may again seem unusual, 
+		but it makes a lot of sense for big datasets: 
+		if you will not reuse the RDD,there’s no reason to waste storage space 
+		when Spark could instead stream through the data once and just compute the result.
+
+	To summarize, every Spark program and shell session will work as follows:
+		1. Create some input RDDs from external data.
+		2. Transform them to define new RDDs using transformations like filter().
+		3. Ask Spark to persist() any intermediate RDDs that will need to be reused.
+		4. Launch actions such as count() and first() to kick off a parallel computation,
+			which is then optimized and executed by Spark.
+
+	cache() is the same as calling persist() with the "default storage level".
+
+RDD Operations:
+	
+	Transformations are operations on RDDs that return a new RDD, such as map() and filter().
+
+	Actions are operations that 
+		return a result to the driver program 
+		or write it to storage, 
+		and kick off a computation, such as count() and first().
+
+	If you are ever confused whether a given function is a transformation or an action, 
+		you can look at its return type: transformations return RDDs, whereas actions return some other data type.
+
+Transformations:
+
+	Transformations are operations on RDDs that return a new RDD. 
+	As discussed in “Lazy Evaluation”, 
+		transformed RDDs are computed lazily, only when you use them in an action. 
+	Many transformations are element-wise; that is, they work on one element at a time; 
+		but this is not true for all transformations.
+	
+	Example 3-12. filter() transformation in Scala
+		val inputRDD = sc.textFile("log.txt")
+		val errorsRDD = inputRDD.filter(line => line.contains("error"))
+			
+	Note that the filter() operation does not mutate the existing "inputRDD". 
+		Instead, it returns a pointer to an entirely new RDD.
+
+	Transformations can actually operate on any number of input RDDs.
+		for example, union() is a bit different than filter(), in that it operates on two RDDs instead of one.
+
+	Finally, as you derive new RDDs from each other using transformations,
+		Spark keeps track of the set of dependencies between different RDDs, 
+		called the "lineage graph".
+
+	It uses this information to compute each RDD on demand 
+		and to recover lost data if part of a persistent RDD is lost.
+
+Actions:
+
+	Actions are the second type of RDD operation.
+	Actions force the evaluation of the transformations required for the RDD 
+		they were called on, since they need to actually produce output.
+
+	Example 3-16. Scala error count using actions
+		println("Input had " + badLinesRDD.count() + " concerning lines")
+		println("Here are 10 examples:")
+		badLinesRDD.take(10).foreach(println)
+
+	We used take() to retrieve a small number of elements in the RDD at the driver program. 
+		We then iterate over them locally to print out information at the driver.
+	
+	RDDs also have a collect() function to retrieve the entire RDD.
+		This can be useful if your program filters RDDs down to a very small size and you’d like to deal with it locally.
+	
+	Keep in mind that your entire dataset must fit in memory on a single machine to use collect() on it, 
+		so collect() shouldn’t be used on large datasets.
+
+	In most cases RDDs can’t just be collect()ed to the driver because they are too large. 
+	In these cases, it’s common to write data out to a 
+		distributed storage system 
+			such as HDFS 
+			or Amazon S3.
+	You can save the contents of an RDD using the saveAsTextFile() action, saveAsSequenceFile(), 
+		or any of a number of actions for various built-in formats.
+
+	It is important to note that each time we call a new action, the entire RDD must be computed “from scratch.” 
+	To avoid this inefficiency, users can persist intermediate results.
+	
+Lazy Evaluation:
+	
+	As you read earlier, 
+		TRANSFORMATIONS on RDDs are lazily evaluated, 
+		meaning that,
+		Spark will not begin to execute until it sees an ACTION.
+
+	Lazy evaluation means that when we call a transformation on an RDD (for instance, calling map()), 
+		the operation is not immediately performed. 
+		Instead, Spark internally records metadata to indicate that this operation has been requested.
+
+	Rather than thinking of an RDD 
+		as "containing specific data", 
+			it is best to think of each RDD as
+		"consisting of instructions" on how to compute the data that we build up through transformations.
+
+	Loading data into an RDD is lazily evaluated in the same way transformations are. 
+	So, when we call sc.textFile(), the data is not loaded until it is necessary.
+
+	Although transformations are lazy, you can force Spark to execute them at any time by running an action, such as count(). 
+	This is an easy way to test out just part of your program.
+	
+	Spark uses lazy evaluation to reduce the number of passes it has to take over our data
+		by grouping operations together.
+		
+	In systems like Hadoop MapReduce, developers often have to spend a lot of time 
+		considering how to group together operations to minimize the number of MapReduce passes.
+	In Spark, there is no substantial benefit to writing a single complex map instead of chaining together many simple operations.
+	
+	Thus, users are free to organize their program into smaller, more manageable operations.
+
+Passing Functions to Spark:
+
+	Most of Spark’s transformations, and some of its actions, depend on passing in functions
+		that are used by Spark to compute data.
+
+	Types of "Passing Functions"
+	
+		Python:
+		(1) pass lambda expressions
+		(2) pass in top-level functions
+		(3) pass locally defined functions
+		
+		One issue to watch out for when passing functions is inadvertently serializing the object containing the function.
+		When you pass a function that is the member of an object, or contains references to fields in an object (e.g., self.field), 
+			Spark sends the entire object to worker nodes, which can be much larger than the bit of information you need.
+		
+		Sometimes this can also cause your program to fail, 
+			if your class contains objects that Python can’t figure out how to pickle.
+		
+		Scala:
+		(1) pass in functions defined inline
+		(2) pass references to methods
+		(3) pass static functions
+		
+		The function we pass and the data referenced in it needs to be serializable (implementing Java’s Serializable interface).
+
+		If NotSerializableException occurs in Scala, a reference to a method or field in a nonserializable class 
+			is usually the problem. Note that passing in local serializable variables 
+			or functions that are members of a top-level object is always safe.
+		
+		Java:
+		In Java, functions are specified as objects that 
+			implement one of Spark’s function interfaces from the org.apache.spark.api.java.function package.
+		
+		There are a number of different interfaces based on the return type of the function.
+		
+		TABLE of COMMON Functions:
+		
+			Function name				Method to implement				Example
+			-------------				-------------------				-------
+			Function<T, R>				R call(T)						map() or filter()
+			Function2<T1, T2, R>		R call(T1, T2)					aggregate() or fold()
+			FlatMapFunction<T, R>		Iterable<R> call(T)				flatMap()
+		
+		We can either define our function classes 
+			(1) inline as anonymous inner classes or
+			(2) or create a named class
+			
+		Example 3-22. Java function passing with anonymous inner class
+			RDD<String> errors = lines.filter(new Function<String, Boolean>() {
+				public Boolean call(String x) { return x.contains("error"); }
+			});
+
+		Example 3-23. Java function passing with named class
+			class ContainsError implements Function<String, Boolean>() {
+				public Boolean call(String x) { return x.contains("error"); }
+			}
+			
+			RDD<String> errors = lines.filter(new ContainsError());
+		
+		Benefits of TOP LEVEL named functions:
+			(1) are often cleaner for organizing large programs
+			(2) can give them constructor parameters [in other words, can avoid hard coding like above]
+		
+		Example 3-24. Java function class with parameters
+			class Contains implements Function<String, Boolean>() {
+				private String query;
+				public Contains(String query) { this.query = query; }
+				public Boolean call(String x) { return x.contains(query); }
+			}
+				
+			RDD<String> errors = lines.filter(new Contains("error"));		
+		
+		Using LAMBDA expressions, JAVA 8, more simple:
+		
+			RDD<String> errors = lines.filter(s -> s.contains("error"));
+		
+Common Transformations and Actions:
+
+	Basic RDDs:
+	
+		Element-wise transformations:
+		
+		map() 
+			transformation takes in a function and "applies it to each element in the RDD" 
+				with the result of the function being the new value of each element in the resulting RDD.
+		
+		filter() 
+			transformation takes in a function and returns an RDD 
+				that only has elements that pass the filter() function.
+		
+		Change RDD type by using map().
+		We can use map() to do any number of things, from fetching the website associated
+			with each URL in our collection to just squaring the numbers.
+		It is useful to note that map()’s return type does not have to be the same as its input type, 
+			so if we had an RDD String and our map() function were to parse the strings and return a Double,
+			our input RDD type would be RDD[String] and the resulting RDD type would be RDD[Double].
+
+		flatMap()
+			Sometimes we want to produce multiple output elements for each input element.[in map() one output for one input]
+			Instead of returning a single element, we return an iterator with our return values.
+			Rather than producing an RDD of iterators, we get back an RDD that consists of the elements
+				from all of the iterators.
+
+		Example 3-31. flatMap() in Java, splitting lines into multiple words
+			JavaRDD<String> lines = sc.parallelize(Arrays.asList("hello world", "hi"));
+			JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
+				public Iterable<String> call(String line) {
+					return Arrays.asList(line.split(" "));
+				}
+			});
+			words.first(); // returns "hello"
+		
+		Think of flatMap() as “flattening” the iterators returned to it, 
+			so that instead of ending up with an RDD as "collection of small collections" 
+			we will simply have a "big collection".
+		
+		Example with words:
+		
+		RDD 			=> {"coffee panda", "happy panda", "happiest panda party"}
+		mappedRDD 		=> {["coffee", "panda"], ["happy", "panda"], ["happiest", "panda", "party"]}
+		flatMappedRDD 	=> {"coffee", "panda", "happy", "panda", "happiest", "panda", "party"}
+
+		Pseudo set operations:
+		
+			RDDs support many of the operations of mathematical sets, such as union and intersection,
+				even when the RDDs themselves are not properly sets.
+			All of these operations require that the RDDs being operated on are of the same type.
+
+			RDD1.distinct()
+			RDD1.union(RDD2)
+			RDD1.intersection(RDD2)
+			RDD1.subtract(RDD2)
+			RDD1.cartesian(RDD2)
+
+			If we want only unique elements we can use the RDD.distinct() transformation 
+				to produce a new RDD with only distinct items. distinct() is COSTLY.
+				
+			Spark’s union() will contain duplicates.
+			Spark’s intersection() also removes all duplicates.
+			
+			intersection(), subtract(), distinct() uses SHUFFLE operation on network, its costly.
+
+	Actions:
+	
+	reduce()
+	With reduce(), we can easily sum the elements of our RDD, 
+		count the number of elements, and perform other types of aggregations
+
+	fold()
+	similar to reduce(), in addition takes a “zero value” to be used for the initial call on each partition.
+	The zero value you provide should be the identity element for your operation; 
+		that is, applying it multiple times with your function should not change the value 
+		(e.g., 0 for +, 1 for *, or an empty list for concatenation).
+
+	Both fold() and reduce() require that the return type of our result be the same type
+		as that of the elements in the RDD we are operating over.
+
+	aggregate()
+		function frees us from the constraint of having the return be the same type as the RDD we are working on.
+
+	Example 3-37. aggregate() in Java
+		class AvgCount implements Serializable {
+			public AvgCount(int total, int num) {
+			this.total = total;
+			this.num = num;
+			}
+			public int total;
+			public int num;
+			public double avg() {
+				return total / (double) num;
+			}
+		}
+		Function2<AvgCount, Integer, AvgCount> addAndCount =
+			new Function2<AvgCount, Integer, AvgCount>() {
+			public AvgCount call(AvgCount a, Integer x) {
+			a.total += x;
+			a.num += 1;
+			return a;
+			}
+		};
+		Function2<AvgCount, AvgCount, AvgCount> combine =
+			new Function2<AvgCount, AvgCount, AvgCount>() {
+			public AvgCount call(AvgCount a, AvgCount b) {
+			a.total += b.total;
+			a.num += b.num;
+			return a;
+			}
+		};
+
+		AvgCount initial = new AvgCount(0, 0);
+		AvgCount result = rdd.aggregate(initial, addAndCount, combine);
+		System.out.println(result.avg());
+
+		IN OTHER WORDS: 
+			initial, addAndCount, combine 	=> first-element(0,0), next-element, aggregate-of-both-elements
+											=> previous-element, next-element, aggregate-of-both-elements
+
+
+		The simplest and most common operation that returns data to our driver program is collect(), 
+			which returns the entire RDD’s contents. Problem is data need to fit in memory.
+		And, take(n) returns n elements from the RDD and attempts to minimize the number of
+			partitions it accesses, so it may represent a biased collection.
+		It’s important to note that these operations do not return the elements in the order you might expect.
+		These operations are useful for unit tests and quick debugging, but may introduce
+			bottlenecks when you’re dealing with large amounts of data.
+			
+		top()
+			will use the default ordering on the data, 
+				but we can supply our own comparison function to extract the top elements.
+		
+		takeSample(withReplacement, num, seed) 
+			function allows us to take a sample of our data either with or without replacement.
+
+		foreach()
+			an action without returning anything.
+			Sometimes it is useful to perform an action on all of the elements in the RDD, 
+				but without returning any result to the driver program. 
+			A good example of this would be posting JSON to a webserver or inserting records into a database.
+	
+		count()
+			returns a count of the elements
+			
+		countByValue() 
+			returns a map of each unique value to its count
+
+Converting Between RDD Types:
+	
+	Some functions are available only on certain types of RDDs,
+		such as mean() and variance() on numeric RDDs
+		or join() on key/value pair RDDs.
+		
+	In Scala and Java, these methods aren’t defined on the standard RDD class, 
+		so to access this additional functionality we have to make sure we get the correct specialized class.
+	
+	SCALA:
+	In Scala the conversion to RDDs with special functions is handled automatically using implicit conversions.
+	These implicits turn an RDD into various wrapper classes, such as DoubleRDDFunctions (for RDDs of numeric data) 
+		and PairRDDFunctions (for key/value pairs), to expose additional functions such as mean() and variance().
+	
+	Implicits, while quite powerful, can sometimes be confusing. 
+	If you call a function like mean() on an RDD, you might look at the Scaladocs for the RDD class and notice
+		there is no mean() function. 
+	The call manages to succeed because of implicit conversions between RDD[Double] and DoubleRDDFunctions. 
+	When searching for functions on your RDD in Scaladoc, 
+		make sure to look at functions that are available in these wrapper classes.
+	
+	JAVA:
+	In Java the conversion between the specialized types of RDDs is a bit more explicit.
+	In particular, there are special classes called JavaDoubleRDD and JavaPairRDD for RDDs of these types, 	
+		with extra methods for these types of data. we can understand easily.
+	
+	To construct RDDs of these special types, instead of always using the Function class
+		we will need to use specialized versions.
+	
+	If we want to create a DoubleRDD from an RDD of type T, 
+		rather than using "Function<T, Double>" we use "DoubleFunction<T>".
+	We also need to call different functions on our RDD 
+		(so we can’t just create a DoubleFunction and pass it to map()).
+	When we want a DoubleRDD back, instead of calling map(), we need to call mapToDouble() 
+		with the same pattern all of the other functions
+	
+	PYTHON:
+	The Python API is structured differently than Java and Scala. In Python all of the functions are implemented 
+		on the base RDD class but will fail at runtime if the type of data in the RDD is incorrect.
+	
+Persistence (Caching):
+	
+	When we ask Spark to persist an RDD, the nodes that compute the RDD store their partitions.
+	If a node that has data persisted on it fails, Spark will recompute the lost partitions of the data when needed.
+	We can also replicate our data on multiple nodes if we want to be able to handle node failure without slowdown.
+
+	Recomputing an entire RDD is especially expensive for iterative algorithms, which look at the data many times.
+		A trivial example would be doing a count and then writing out the same RDD.
+
+	Example 3-39. Double execution in Scala
+		val result = input.map(x => x*x)
+		println(result.count())
+		println(result.collect().mkString(","))
+
+	Spark has many levels of persistence to choose from based on what our goals are:
+		In Scala and Java,
+			the default persist() will store the data in the JVM heap as unserialized objects.
+		In Python,
+			we always serialize the data that persist stores, 
+				so the default is instead stored in the JVM heap as pickled(serialized) objects.
+			When we write data out to disk or off-heap storage, that data is also always serialized.
+
+	[[Off-heap caching is experimental and uses Tachyon. If you are
+	interested in off-heap caching with Spark, take a look at the Running
+	Spark on Tachyon guide.]]
+
+	The persist() call on its own doesn’t force evaluation.
+	
+	If you attempt to cache too much data to fit in memory, Spark will automatically
+		evict(spill) old partitions using a Least Recently Used (LRU) cache policy.
+	For the memoryonly storage levels, 
+		it will recompute these partitions the next time they are accessed.
+	For the memory-and-disk ones, it will write them out to disk.
+
+	In either case, this means that you don’t have to worry about your job breaking if you ask Spark to cache too much data.
+	However, caching unnecessary data can lead to eviction of useful data and more recomputation time.
+	
+***************************************************************************************************
+**************************************CHAPTER-FOUR*************************************************
+***************************************************************************************************
+
+CHP-4-"Working with Key/Value Pairs":
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
