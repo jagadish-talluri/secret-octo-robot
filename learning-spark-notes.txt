@@ -17,9 +17,10 @@ Learning Spark:
 ##################################################################################################
 
 ############################MY-TRACKS#############################################################
-CH_1_DONE => 3 hours (21-MAR-2016)
-CH_2_DONE => 2 hours (21-MAR-2016)
-CH_3_DONE => 5 hours (21-MAR-2016)
+#### CH_1_DONE => 3 hours (21-MAR-2016)
+#### CH_2_DONE => 2 hours (21-MAR-2016)
+#### CH_3_DONE => 5 hours (21-MAR-2016)
+#### CH_4_DONE => 8 hours (22-MAR-2016)
 
 
 ##################################################################################################
@@ -840,6 +841,360 @@ Persistence (Caching):
 
 CHP-4-"Working with Key/Value Pairs":
 
+	Key/Value pairs are common data type required for many operations in Spark.
+	They are used to perform aggregations, or some new operations
+		and often we will do some initial ETL to get our data into a key/value format.
+	Using controllable partitioning, applications can sometimes greatly reduce communication costs 
+		by ensuring that data will be accessed together and will be on the same node.
+
+	Choosing the right partitioning for a distributed dataset is similar 
+		to choosing the right data structure for a local one—in both cases, data layout can greatly affect performance.
+
+	Spark provides special operations on RDDs containing key/value pairs. 
+	These RDDs are called "pair RDDs".
+	
+	pair RDDs have,
+		reduceByKey(), method that can aggregate data separately for each key
+		join(), method that can merge two RDDs together by grouping elements with the same key
+	
+	It is common to extract fields from an RDD and use those fields as keys in pair RDD operations.
+
+Creating Pair RDDs:
+
+	There are a number of ways to get pair RDDs in Spark.
+	Many input formats at loading time will directly return pair RDDs for their key/value data.
+	We can turn a "regular RDD" into "pair RDD". [by using map()]
+	
+	The way to build key-value RDDs differs by language.
+	
+	Python:
+	The functions on keyed data to work we need to return an RDD composed of tuples
+	pairs = lines.map(lambda x: (x.split(" ")[0], x))
+
+	Scala:
+	The functions on keyed data to work we also need to return an RDD composed of tuples
+	val pairs = lines.map(x => (x.split(" ")(0), x))
+	
+	Java:
+	Java doesn’t have a built-in tuple type,
+		so Spark’s Java API helps users to create tuples using the scala.Tuple2 class.
+	Java users can construct a new tuple by writing "new Tuple2(elem1, elem2)"
+	And can then access its elements with the "._1()" and "._2()" methods.
+
+	Java users also need to call special versions of Spark’s functions when creating pairRDDs.
+	For instance, 
+		the mapToPair() function should be used in place of the basic map() function.
+
+	PairFunction<String, String, String> keyData =
+		new PairFunction<String, String, String>() {
+		public Tuple2<String, String> call(String x) {
+			return new Tuple2(x.split(" ")[0], x);
+		}
+	};
+	JavaPairRDD<String, String> pairs = lines.mapToPair(keyData);
+
+	When creating a pair RDD from an in-memory collection,
+		In Scala and Python,
+			we need to call "SparkContext.parallelize()"
+		In Java,
+			we need to call "SparkContext.parallelizePairs()"
+
+Transformations on Pair RDDs:
+
+	Pair RDDs are allowed to use all the transformations available to standard RDDs.
+	Since pair RDDs contain tuples, 
+		we need to pass functions that "operate on tuples" rather than on individual elements.
+
+	Table 4-1. Transformations on one pair RDD
+	Table 4-2. Transformations on two pair RDD
+	
+	Pair RDDs are also still RDDs (of Tuple2 objects in Java/Scala or of Python tuples),
+		and thus support the same functions as RDDs.
+
+	Example 4-6. Simple filter on second element in Java
+		Function<Tuple2<String, String>, Boolean> longWordFilter =
+			new Function<Tuple2<String, String>, Boolean>() {
+				public Boolean call(Tuple2<String, String> keyValue) {
+					return (keyValue._2().length() < 20);
+			}
+			};
+		JavaPairRDD<String, String> result = pairs.filter(longWordFilter);
+
+Aggregations:
+	When datasets are described in terms of key/value pairs, it is common to want to
+		aggregate statistics across all elements with the same key.
+	These operations return RDDs and thus are transformations rather than actions.
+
+	reduceByKey() is quite similar to reduce(); both take a function and use it to combine values.
+	reduceByKey() runs several parallel reduce operations, one for each key in the dataset, 
+		where each operation combines values that have the same key.
+
+	foldByKey() is quite similar to fold();both use a zero value of the same type of the
+		data in our RDD and combination function.
+	
+	Those familiar with the combiner concept from MapReduce should note that calling reduceByKey() and foldByKey() will
+		automatically perform combining locally on each machine before computing global totals for each key. 
+	The user does not need to specify a combiner. The more general combineByKey() interface 
+		allows you to customize combining behavior
+	
+	WordCount in one line,
+		val newRDD = input.flatMap(x => x.split(" ")).countByValue()
+
+	combineByKey() is the most general of the per-key aggregation functions.
+	Like aggregate(), combineBy Key() allows the user to return values that are not the same type as our input data.
+	As combineByKey() goes through the elements in a partition, each element either has a key it hasn’t seen before 
+		or has the same key as a previous element.
+
+	//combiner is like a datastructure in spark, understand more from the below URL
+		http://abshinn.github.io/python/apache-spark/2014/10/11/using-combinebykey-in-apache-spark/
+		http://stackoverflow.com/questions/29246756/how-createcombiner-mergevalue-mergecombiner-works-in-combinebykey-in-spark-us
+		
+	combineByKey(),
+		Need to provide 3 functions as args, every computation happens on VALUE part of RDD
+			First, to set initial value, called as "createCombiner()"
+			Second, to increment/accumulate the subsequent value, called as "mergeValue()"
+			Third, to accumulate/merge the values/accumulators across partitions, called as "mergeCombiners()"
+		Since each partition is processed independently, we can have multiple accumulators for the same key.
+		
+		Example 4-14. Per-key average using combineByKey() in Java [see this later]
+		In any case, using one of the specialized aggregation functions in Spark can be much faster than the
+			naive approach of grouping our data and then reducing it.
+
+Tuning the level of parallelism:
+
+How Spark decides how to split up the work?
+Ans:
+	Every RDD has a fixed number of partitions 
+		that determine the degree of parallelism to use when executing operations on the RDD.
+	When performing aggregations or grouping operations, we can ask Spark to use a specific number of partitions.
+	Spark will always try to infer a sensible default value based on the size of your cluster, 
+		but in some cases you will want to tune the level of parallelism for better performance.
+
+How to tell the number of partitions to use explicitly?
+Ans:
+	By using a second parameter.
+	Example 4-15. reduceByKey() with custom parallelism in Python
+		data = [("a", 3), ("b", 4), ("a", 1)]
+		sc.parallelize(data).reduceByKey(lambda x, y: x + y) # Default parallelism
+		sc.parallelize(data).reduceByKey(lambda x, y: x + y, 10) # Custom parallelism
+
+	repartition(),
+		Which shuffles the data across the network to create a new set of partitions.
+		Sometimes, we want to change the partitioning of an RDD outside the context of grouping and aggregation operations.
+		It is a fairly expensive operation.
+		
+	coalesce(),
+		optimized version of "repartition()"
+		Used, to bring down the number of partitions, like many to few
+		That allows avoiding data movement, but only if you are decreasing the number of RDD partitions.
+
+How to verifiy partitions count?
+Ans:
+	In Java/Scala,
+		rdd.partitions.size()
+		
+	In Python,
+		rdd.getNumPartitions()
+
+Grouping Data:
+
+	groupByKey(),
+		RDD consisting of keys of type K and values of type V, we get back an RDD of type [K, Iterable[V]].
+		
+	groupBy(),
+		works on unpaired data
+		or data where we want to use a "different condition" besides equality on the current key.
+		It takes a function that it applies to every element in the source RDD and uses the result to determine the key.
+		
+	rdd.reduceByKey(func),
+		produces same result as "rdd.groupByKey().mapValues(value => value.reduce(func))"
+		but is more efficient as it "avoids the step of creating a list of values" for each key.
+
+	cogroup(),
+		we can group data sharing the same key from multiple RDDs.
+		If two RDDs sharing the same key type, K, with the respective value types V and W 
+			gives us back RDD[(K, (Iterable[V], Iterable[W]))]
+		If one of the RDDs doesn’t have elements for a given key that is present in the other RDD, 
+			the corresponding Iterable is simply empty
+		Additionally, cogroup() can work on three or more RDDs at once.
+
+Joins:
+	
+	join(),
+		an inner join, usage: RDD1.join(RDD2)
+		
+	leftOuterJoin(other)
+	rightOuterJoin(other)
+	
+	For Outer Joins,
+		The value associated with each key in the result is a tuple of the value from the source RDD 
+			and an Option (or Optional in Java) for the value from the other pair RDD.
+		In Python, if a value isn’t present None is used; 
+			and if the value is present the regular value, without any wrapper, is used.
+
+		[[Optional is part of Google’s Guava library and represents a possibly missing value. 
+			We can check isPresent() to see if it’s set, 
+			and get() will return the contained instance provided data is present.]]
+
+Sorting Data:
+
+	sortByKey(),
+		We can sort an RDD with key/value pairs provided that there is an ordering defined on the key
+		Once we have sorted our data, any subsequent call on the sorted data 
+			to collect() or save() will result in ordered data.
+		Sometimes we want a different sort order entirely, 
+			and to support this we can provide our own comparison function.
+		Default is ascending order.
+	
+	Example 4-20. Custom sort order in Scala, "sorting integers as if strings"
+		val input: RDD[(Int, Venue)] = ...
+			implicit val sortIntegersByString = new Ordering[Int] {
+			override def compare(a: Int, b: Int) = a.toString.compare(b.toString)
+		}
+		rdd.sortByKey()
+
+Actions Available on Pair RDDs:
+
+	As with the transformations, all of the traditional actions available on the base RDD
+		are also available on pair RDDs.
+		
+	Additional Actions,
+		countByKey(), Count the number of elements for each key.(a wordcount kind of result)
+		collectAsMap(), Collect the result as a map to provide easy lookup. (like dictionary, lookup table)
+		lookup(key), Return all values associated with the provided key.
+
+Data Partitioning (Advanced):
+	
+	partitionBy(),
+		a TRANSFORMATION, to Control datasets partitioning across nodes.
+		that means,
+			it always returns a new RDD
+			it does not change the original RDD
+	
+	In a distributed program, communication is very expensive,
+		so laying out data to minimize network traffic can greatly improve performance.
+	Partitioning is useful only when a dataset is reused multiple times in key-oriented operations such as joins.
+	If a given RDD is scanned only once, there is no point in partitioning it in advance.
+	
+	Spark’s partitioning is available on all RDDs of key/value pairs, 
+		and causes the system to group elements based on a function of each key.
+	Although Spark does not give explicit control of which worker node each key goes to (to support fault tolarence), 
+		it lets the program ensure that a set of keys will appear together on some node.
+	For example, 
+		you might choose to hashpartition an RDD into 100 partitions 
+			so that keys that have the same hash value modulo 100 appear on the same node. 
+		Or you might range-partition the RDD into sorted ranges of keys 
+			so that elements with keys in the same range appear on the same node.
+	Explore, Example 4-22 later as usecase is good.
+	
+	Example 4-23. Scala custom partitioner
+		val sc = new SparkContext(...)
+		val userData = sc.sequenceFile[UserID, UserInfo]("hdfs://...")
+			.partitionBy(new HashPartitioner(100)) // Create 100 partitions
+			.persist()
+	
+	Because we called partitionBy() when building userData, Spark will now know that it is hash-partitioned, 
+		and calls to join() on it will take advantage of this information.
+	The result is that a lot less data is communicated over the network, and the program runs significantly faster. 
+	
+	And you make sure that the NUM-OF-PARTITIONS at least as large as the number of cores in your cluster.
+	Without persistence, use of the partitioned RDD will cause reevaluation of the RDDs complete lineage. 
+		That would negate the advantage of partitionBy(), 
+		resulting in repeated partitioning and shuffling of data across the network
+
+	Many other Spark operations automatically result in an RDD with known partitioning information
+	sortByKey(), 
+		result in range-partitioned
+	groupByKey()
+		result in hash-partitioned
+	map(),
+		ignores parent RDD partition information, as the key changes, so no use
+
+	In Python, you cannot pass a Hash Partitioner object to partitionBy;
+		instead, you just pass the number of partitions desired (e.g., rdd.partitionBy(100)).
+
+Determining an RDD’s Partitioner:
+	
+	spark.Partitioner object,
+		The "partitioner" property is a great way to test in the Spark shell how different
+			Spark operations affect partitioning.
+	
+	Example 4-24. Determining partitioner of an RDD, shows how to use partitionsBy() and partitioner property
+		scala> val pairs = sc.parallelize(List((1, 1), (2, 2), (3, 3)))
+		pairs: spark.RDD[(Int, Int)] = ParallelCollectionRDD[0] at parallelize at <console>:12
+
+		scala> pairs.partitioner
+		res0: Option[spark.Partitioner] = None
+
+		scala> val partitioned = pairs.partitionBy(new spark.HashPartitioner(2))
+		partitioned: spark.RDD[(Int, Int)] = ShuffledRDD[1] at partitionBy at <console>:14
+
+		scala> partitioned.partitioner
+		res1: Option[spark.Partitioner] = Some(spark.HashPartitioner@5147788d)
+	
+	If we actually wanted to use partitioned in further operations, 
+		then we should have appended persist() to the third line of input, in which partitioned is defined.
+	Without persist(), subsequent RDD actions will "evaluate the entire lineage" of partitioned, 
+		which will cause pairs to be hash-partitioned "over and over".
+	
+Operations That Benefit from Partitioning:
+	
+	Save SHUFFLING, which is costly.
+	
+	Many of Spark’s operations involve shuffling data by key across the network.
+	For operations that act on a single RDD, such as reduceByKey(), 
+		running on a prepartitioned RDD will cause all the values for each key to be computed locally on a single machine, 
+		requiring only the final, locally reduced value to be sent from each worker node back to the master.
+	Finally, for binary operations, 
+		which partitioner is set on the output depends on the parent RDDs’ partitioners. 
+	By default, it is a hash partitioner, with the number of partitions set to the level of parallelism of the operation.
+	
+Example: PageRank
+
+	The PageRank algorithm, named after Google’s Larry Page,
+		aims to assign a measure of importance (a “rank”) to each document in a set 
+		based on how many documents have links to it.
+	
+	PageRank is an iterative algorithm that performs many joins, so it is a good use case for RDD partitioning.
+	
+	// i need to spend more time to understand the PAGE RANK example in detail
+	
+Custom Partitioners:	
+	
+	Spark also allows you to tune how an RDD is partitioned by providing a custom Partitioner object.
+	This can help you further reduce communication by taking advantage of domain-specific knowledge.
+	
+	Make a custom partitioner for PAGE RANK.
+	As we know that web pages within the same domain tend to link to each other a lot.
+		(e.g., http://www.cnn.com/WORLD and http://www.cnn.com/US)
+	or else they will be in different partitions as HASH is different for them.
+	
+	To implement a custom partitioner, you need to subclass 
+		the org.apache.spark.Partitioner class and implement three methods:
+		(1) numPartitions: Int, which returns the number of partitions you will create
+		(2) getPartition(key: Any): Int, which returns the partition ID (like R0 to Rn-1 in hadoop)
+		(3) equals(),
+			This is important to implement because Spark will need to test your Partitioner object against other instances
+				of itself when it decides whether two of your RDDs are partitioned the same way!
+		gotcha,
+			Java’s hashCode() method returns negative integer values also.
+			make sure you override it to get always positive integers.
+			
+		[[Note that the hash function you pass will be compared by identity to that of other
+			RDDs. If you want to partition multiple RDDs with the same partitioner, pass the
+			same function object (e.g., a global function) instead of creating a new lambda for
+			each one!]]
+
+***************************************************************************************************
+****************************************CHAPTER-FIVE***********************************************
+***************************************************************************************************
+
+CHP-5-"Loading and Saving Your Data":
+
+
+
+
+
 
 
 
@@ -857,4 +1212,68 @@ CHP-4-"Working with Key/Value Pairs":
 
 
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+	
+	
+
+	
+	
+
+
+
+
+	
+	
+	
+	
+	
+
+
+
+
+		
 	
