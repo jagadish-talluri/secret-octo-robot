@@ -21,7 +21,7 @@ Learning Spark:
 #### CH_2_DONE => 2 hours (21-MAR-2016)
 #### CH_3_DONE => 5 hours (21-MAR-2016)
 #### CH_4_DONE => 8 hours (22-MAR-2016)
-
+#### CH_5_DONE => 8 hours (23-MAR-2016)
 
 ##################################################################################################
 
@@ -1190,90 +1190,445 @@ Custom Partitioners:
 ***************************************************************************************************
 
 CHP-5-"Loading and Saving Your Data":
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	
+	Engineers may wish to explore more output formats to see if there is something well suited to
+		their intended downstream consumer.
+	Data scientists can likely focus on the format that their data is already in.
+
+	So far our examples have loaded and saved all of their data from
+		(1) a native collection and 
+		(2) regular files
+	but odds are that your data doesn’t fit on a single machine.
+	Therefore, need other options.
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	Spark can access data through the "InputFormat" and "OutputFormat" interfaces used by Hadoop MapReduce, 
+		which are available for many common file formats and storage systems. (s3, HDFS, HBase, etc.)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-	
-	
-
-	
-	
-
-
-
-
-	
-	
-	
-	
-	
-
-
-
-
+	we will cover three common sets of data sources:
+		(1) File formats and filesystems
+		(2) Structured data sources through Spark SQL
+		(3) Databases and key/value stores
 		
+	File Formats:
+		Formats range 
+			from unstructured, like text, 
+			to semistructured, like JSON, 
+			to structured, like SequenceFiles
+
+		Examples:
+			(1) Text
+			(2) JSON
+			(3) CSV
+			(4) SequenceFiles, A common Hadoop file format used for key/value data.
+			(5) ProtocolBuffers, A fast, space-efficient multilanguage format.
+			(6) ObjectFiles, Useful for saving data from a Spark job to be consumed by shared code, used Java Serialization.
+
+	Also, in Spark, we can use both Hadoop’s new and old file APIs for keyed (or paired) data.
+	We can use these only with key/value data, because the Hadoop interfaces require key/value data,
+
+		Text Files:
+			When we load a single text file as an RDD, each input line becomes an element in the RDD.
+			We can also load multiple whole text files at the same time into a pair RDD, 
+				with the key being the name and the value being the contents of each file.
+			"SparkContext.wholeTextFiles()" method and get back a pair RDD where the key is
+				the name of the input file.
+			
+			Example 5-2. Loading a text file in Scala
+				val input = sc.textFile("file:///home/holden/repos/spark/README.md")
+
+			Example 5-4. Average value per file in Scala [folder as input]
+				val input = sc.wholeTextFiles("file://home/holden/salesFiles")
+				val result = input.mapValues{y =>
+						val nums = y.split(" ").map(x => x.toDouble)
+				nums.sum / nums.size.toDouble
+				}
+			Spark supports reading all the files in a given directory and doing
+				wildcard expansion on the input (e.g., part-*.txt).
+			
+			result.saveAsTextFile(outputFile), 
+				to save an RDD into text file
+				The path is treated as a directory and Spark will output multiple files underneath that directory.
+
+		JSON Files:
+		
+			JSON is a popular semistructured data format.
+			The simplest way to load JSON data is by loading the data as a text file
+				and then mapping over the values with a JSON parser.
+			We can use our preferred JSON serialization library to write out the values to strings,
+
+			Loading JSON:
+				This works assuming that you have one JSON record per row; 
+				if you have multiline JSON files, you will instead have to load
+					the whole file and then parse each file.
 	
+				If constructing a JSON parser is expensive in your language, you can use mapPartitions() to reuse the parser;
+			Java and Scala will use "Jackson" to read/parse JSON files.
+			In Scala and Java, it is common to load records into a class representing their schemas.
+			
+			Example 5-6. Loading unstructured JSON in Python
+				import json
+				data = input.map(lambda x: json.loads(x))
+	
+			In Scala and Java, it is common to load records into a class representing their schemas.
+			Handling incorrectly formatted records can be a big problem, especially with semistructured data like JSON.
+			For large data sets, issues are common with malformed JSON data, be prepared.
+			
+			Example 5-8. Loading JSON in Java
+				class ParseJson implements FlatMapFunction<Iterator<String>, Person> {
+					public Iterable<Person> call(Iterator<String> lines) throws Exception {
+						ArrayList<Person> people = new ArrayList<Person>();
+						ObjectMapper mapper = new ObjectMapper();
+						while (lines.hasNext()) {
+							String line = lines.next();
+							try {
+								people.add(mapper.readValue(line, Person.class));
+							} catch (Exception e) {
+								// skip records on failure
+							}
+						}
+						return people;
+					}
+				}
+				JavaRDD<String> input = sc.textFile("file.json");
+				JavaRDD<Person> result = input.mapPartitions(new ParseJson());	
+			
+			Take our RDD of structured data and convert it into an RDD of strings, 
+				which we can then write out using Spark’s text file API.
+			
+			Let’s say we were running a promotion for people who love pandas. We can take our
+				input from the first step and filter it for the people who love pandas.
+			
+			Example 5-10. Saving JSON in Scala
+				result.filter(p => P.lovesPandas).map(mapper.writeValueAsString(_))
+						.saveAsTextFile(outputFile)
+	
+		CSV Files:(TSV also)
+		
+		Records are often stored one per line, but this is not always the case as records can sometimes span lines.
+		CSVs cannot handle nested field types natively, so we have to unpack and pack to specific fields manually.
+		
+		Unlike with JSON fields, each record doesn’t have field names associated with it;
+			instead we get back row numbers. 
+		It is common practice in single CSV files to make the first row’s column values the names of each field.
+		
+		Loading CSV/TSV data is similar to loading JSON data in that 
+			we can first load it as text and then process it.
+			
+		Python has built-in libraries for JSON/CSV/TSV.
+		
+		Example 5-13. Loading CSV with textFile() in Scala [if data happens to not contain newlines in any of the fields]
+			import Java.io.StringReader
+			import au.com.bytecode.opencsv.CSVReader
+			...
+			val input = sc.textFile(inputFile)
+			val result = input.map{ line =>
+					val reader = new CSVReader(new StringReader(line));
+			reader.readNext();
+			}
+	
+		If there are embedded newlines in fields, we will need to load each file in full and parse the entire segment.
+			This is unfortunate because if each file is large it can introduce bottlenecks in loading and parsing.
+
+		Example 5-17. Loading CSV in full in Java
+			public static class ParseLine
+				implements FlatMapFunction<Tuple2<String, String>, String[]> {
+				public Iterable<String[]> call(Tuple2<String, String> file) throws Exception {
+					CSVReader reader = new CSVReader(new StringReader(file._2()));
+					return reader.readAll();
+				}
+			}
+			JavaPairRDD<String, String> csvData = sc.wholeTextFiles(inputFile);
+			JavaRDD<String[]> keyedRDD = csvData.flatMap(new ParseLine());		
+
+
+		As with JSON data, writing out CSV/TSV data is quite simple and we can benefit from reusing the output encoding object.
+		In Python, if we are outputting dictionaries the CSV writer can do this for us 
+			based on the order in which we provide the fieldnames when constructing the writer.
+		The CSV libraries we are using output to files/writers so we can use StringWriter/
+			StringIO to allow us to put the result in our RDD.
+		Repartition your input to allow Spark to effectively parallelize your future operations.
+		
+		pandaLovers.map(person => List(person.name, person.favoriteAnimal).toArray)
+			.mapPartitions{people =>
+				val stringWriter = new StringWriter();
+				val csvWriter = new CSVWriter(stringWriter);
+				csvWriter.writeAll(people.toList)
+				Iterator(stringWriter.toString)
+			}.saveAsTextFile(outFile)
+
+		SequenceFiles:
+		
+			SequenceFiles are a popular Hadoop format composed of flat files with key/value pairs.
+			SequenceFiles have sync markers that allow Spark to seek to a point in the file 
+				and then resynchronize with the record boundaries. Spark can use them efficiently.
+			Used widely with Hadoop too.
+			SequenceFiles consist of elements that implement Hadoop’s Writable interface, 
+				as Hadoop uses a custom serialization framework.
+			SequenceFiles work with Writable classes, so our keyClass and valueClass 
+				will both have to be the correct Writable class.
+			**Hadoop’s RecordReader reuses the same object for each record, 
+				so directly calling cache on an RDD you read in like this can fail;
+				instead, add a simple map() operation and cache its result.
+
+			In Spark 1.0 and earlier, SequenceFiles were available only in Java and Scala,
+				but Spark 1.1 added the ability to load and save them in Python as well.
+			The Python Spark API knows only how to convert the basic Writables available in Hadoop to Python
+			
+			Loading SequenceFiles:
+			
+			sequenceFile(path, keyClass, valueClass, minPartitions),
+				
+			In Scala there is a convenience function that can automatically convert Writables to their corresponding Scala type. 
+				Instead of specifying the keyClass and valueClass, we can call sequence File[Key, Value](path, minPartitions) 
+				and get back an RDD of native Scala types.
+	
+			Example 5-22. Loading a SequenceFile in Java
+				public static class ConvertToNativeTypes implements
+					PairFunction<Tuple2<Text, IntWritable>, String, Integer> {
+						public Tuple2<String, Integer> call(Tuple2<Text, IntWritable> record) {
+							return new Tuple2(record._1.toString(), record._2.get());
+					}
+				}
+				JavaPairRDD<Text, IntWritable> input = sc.sequenceFile(fileName, Text.class, IntWritable.class);
+				JavaPairRDD<String, Integer> result = input.mapToPair(new ConvertToNativeTypes());
+	
+			Saving SequenceFiles:
+			
+			Writing the data out to a SequenceFile is fairly similar in Scala.
+			First, because SequenceFiles are key/value pairs, 
+				we need a PairRDD with types that our SequenceFile can write out.
+			Implicit conversions between Scala types and Hadoop Writables exist for many native types
+			Just save your "PairRDD" by calling "saveAsSequenceFile(path)"
+	
+			Example 5-23. Saving a SequenceFile in Scala
+				val data = sc.parallelize(List(("Panda", 3), ("Kay", 6), ("Snail", 2)))
+				data.saveAsSequenceFile(outputFile)
+	
+		Object Files:
+			Object files are a deceptively simple wrapper around SequenceFiles that allows us 
+				to save our RDDs containing just values. 
+			Unlike with SequenceFiles, with object files the values are written out using Java Serialization.
+			If you change your classes—for example, to add and remove fields old object files may no longer be readable.
+		
+			Using Java Serialization for object files has a number of implications.
+			Unlike with normal SequenceFiles, the output will be different than Hadoop outputting the same objects.
+			Java Serialization can also be quite slow.
+			
+			objectFile(),
+				to read an object file.
+			saveAsObjectFile(),
+				to save an object file from an RDD.
+
+			The primary reason to use object files is that they require almost no work to save almost arbitrary objects.
+
+			Object files are not available in Python, but the Python RDDs and SparkContext support
+				methods called saveAsPickleFile() and pickleFile() instead.
+
+		Hadoop Input and Output Formats:
+			
+			We can also interact with any Hadoop-supported formats. 
+			Spark supports both the “old” and “new” Hadoop file APIs.
+
+			To read in a file using the new Hadoop API we need to tell Spark a few things
+				"newAPIHadoopFile" takes a path, and three classes.
+					(1) format class
+					(2) key class
+					(3) value class
+						(4) conf object [optional]
+			Example 5-24. Loading KeyValueTextInputFormat() with old-style API in Scala
+				val input = sc.hadoopFile[Text, Text, KeyValueTextInputFormat](inputFile).map{
+						case (x, y) => (x.toString, y.toString)	
+						}
+
+			we can also load JSON data using a custom Hadoop input format.
+				Twitter’s Elephant Bird package supports a large number of data formats, 
+					including JSON, Lucene, Protocol Buffer–related formats, and others.
+
+				Example 5-25. Loading LZO-compressed JSON with Elephant Bird in Scala
+					val input = sc.newAPIHadoopFile(inputFile, classOf[LzoJsonInputFormat],
+														classOf[LongWritable], classOf[MapWritable], conf)
+					// Each MapWritable in "input" represents a JSON object
+					// LZO support requires you to install the hadoop-lzo package and point Spark to its native libraries.
+	
+			In Java we don’t have the same convenience function for saving "SequenceFile" from a pair RDD.
+
+			Example 5-26. Saving a SequenceFile in Java, using Hadoop Input/Output Format mechanisms
+				public static class ConvertToWritableTypes implements
+					PairFunction<Tuple2<String, Integer>, Text, IntWritable> {
+						public Tuple2<Text, IntWritable> call(Tuple2<String, Integer> record) {
+							return new Tuple2(new Text(record._1), new IntWritable(record._2));
+						}
+					}
+				JavaPairRDD<String, Integer> rdd = sc.parallelizePairs(input);
+				JavaPairRDD<Text, IntWritable> result = rdd.mapToPair(new ConvertToWritableTypes());
+				result.saveAsHadoopFile(fileName, Text.class, IntWritable.class, SequenceFileOutputFormat.class);			
+
+		Non-filesystem data sources:
+			
+			To access Hadoop-supported storage formats that are not filesystems. Like HBase, MongoDB, etc.
+			Use Hadoop input formats to read directly from the key/value store.
+			
+			hadoopDataset(),
+				family of functions just take a Configuration object on which you 
+					set the Hadoop properties needed to access your data source.
+
+			Protocol buffers,
+				First developed at Google for internal remote procedure calls(RPC) later open sourced.
+				Are structured data, with the fields and types of fields being clearly defined.
+				Optimized to be fast for encoding and decoding.
+				Take up the minimum amount of space.
+				Compared to XML, PBs are 3× to 10× smaller and can be 20× to 100× faster to encode and decode.
+				
+				Not platform independent, need a special compiler for different language.
+				Not self-describing, to parse it, you need to know the definition before hand.
+				// go here for more, https://developers.google.com/protocol-buffers/
+				// see examples 5-27 and 5-28 for further understanding.
+				
+		File Compression:
+		
+			Compression options apply only to the Hadoop formats that support compression,
+				namely those that are written out to a filesystem.
+			Database Hadoop formats generally do not implement support for compression.
+			Spark’s textFile() method can handle compressed input.
+			
+			Compression options:
+			
+			Type			Splittable			Speed			Compression
+			-----			----------			--------		------------
+			gzip			N					Fast			High
+			lzo				Y					Very Fast		Medium
+			bzip2			Y					Slow			Very High
+			zlib			N					Slow			Medium
+			snappy			N					Very Fast		Low
+
+			**Many of the formats in Twitter’s Elephant Bird package work with "LZO" compressed data.
+		
+	Filesystems:
+		
+		Local/“Regular” FS:
+			While Spark supports loading files from the local filesystem, 
+				it requires that the files are available at the same path on all nodes in your cluster.
+	
+			Some network filesystems, like NFS, AFS, and MapR’s NFS layer, are exposed to the user as a regular filesystem.
+				access it by specifying file://
+				
+				Example 5-29. Loading a compressed text file from the local filesystem in Scala
+					val rdd = sc.textFile("file:///home/holden/happypandas.gz")
+				
+			If your file isn’t already on all nodes in the cluster, you can load it locally on the driver 
+				without going through Spark and then call parallelize to distribute the contents to workers.
+			This approach can be slow, however, 
+				so we recommend putting your files in a shared filesystem like HDFS, NFS, or S3.
+		
+		Amazon S3:
+			To access S3 in Spark, you should first set the AWS_ACCESS_KEY_ID and
+				AWS_SECRET_ACCESS_KEY environment variables to your S3 credentials.
+			If you get an S3 access permissions error from Amazon, make sure that the account 
+				for which you specified an access key has both “read” and “list” permissions on the bucket. 
+			Spark needs to be able to list the objects in the bucket to identify the ones you want to read.
+			Spark supports wildcard paths for S3, such as s3n://bucket/my-files/*.txt.
+
+		HDFS:
+			Spark and HDFS can be collocated on the same machines, 
+				and Spark can take advantage of this data locality to avoid network overhead.
+			Using Spark with HDFS is as simple as specifying hdfs://master:port/path for your input and output.
+
+			The HDFS protocol changes across Hadoop versions,
+				so if you run a version of Spark that is compiled for a different version it will fail.
+
+	Structured Data with Spark SQL:
+		
+		Spark SQL is a component added in Spark 1.0 good for structured and semistructured data.
+		Structured means schema is there.
+		In all cases, we give Spark SQL a SQL query to run on the data source,
+			and we get back an RDD of Row objects, one per record.
+		
+		Apache Hive:
+			Spark SQL can load any table supported by Hive.
+			Hive can store tables in a variety of formats, from plain text to column-oriented formats.
+
+			To connect Spark SQL to an existing Hive installation, you need to provide a Hive configuration. 
+			You do so by copying your hive-site.xml file to Spark’s ./conf/ directory.
+			Once you have done this, you create a HiveContext object, which is the entry point to Spark SQL, 
+				and you can write Hive Query Language (HQL) queries against your tables to get data back as RDDs of rows.
+
+
+			Example 5-32. Creating a HiveContext and selecting data in Java
+
+				import org.apache.spark.sql.hive.HiveContext;
+				import org.apache.spark.sql.Row;
+				import org.apache.spark.sql.SchemaRDD;
+
+				HiveContext hiveCtx = new HiveContext(sc);
+				SchemaRDD rows = hiveCtx.sql("SELECT name, age FROM users");
+				Row firstRow = rows.first();
+				System.out.println(firstRow.getString(0)); // Field 0 is the name
+		
+		JSON:
+			If you have JSON data with a consistent schema across records, Spark SQL can infer their schema 
+				and load this data as rows as well, making it very simple to pull out the fields you need.
+
+			Example 5-33. Sample tweets in JSON [one tweet per line]
+				{"user": {"name": "Holden", "location": "San Francisco"}, "text": "Nice day out today"}
+				{"user": {"name": "Matei", "location": "Berkeley"}, "text": "Even nicer here :)"}
+
+			Example 5-36. JSON loading with Spark SQL in Java
+				SchemaRDD tweets = hiveCtx.jsonFile(jsonFile);
+				tweets.registerTempTable("tweets");
+				SchemaRDD results = hiveCtx.sql("SELECT user.name, text FROM tweets");
+
+	Databases:
+		
+		Java Database Connectivity: 
+			see, Example 5-37. "JdbcRDD" in Scala
+
+		As with other data sources, when using JdbcRDD, make sure that your database can
+			handle the load of parallel reads from Spark.
+
+		Cassandra:
+			Spark’s Cassandra support has improved greatly with the introduction of the open source 
+				"Spark Cassandra connector" from DataStax.
+			Cassandra doesn’t yet use Spark SQL, but it returns RDDs of CassandraRow objects, 
+				which have some of the same methods as Spark SQL’s Row object.
+			Cassandra connector reads a job property to determine which cluster to connect to.
+			In addition to loading an entire table, we can also query subsets of our data.
+			
+			see, examples for further understanding.
+
+		HBase:
+			Spark can access HBase through its Hadoop input format.
+			see, example for further understanding.
+			
+		Elasticsearch:
+			Spark can both read and write data from Elasticsearch using "Elasticsearch-Hadoop".
+			Elasticsearch is a new open source, Lucene-based search system.
+			
+			No Automatic, we need to set more properties by hand.
+
+***************************************************************************************************
+****************************************CHAPTER-SIX************************************************
+***************************************************************************************************
+
+CHP-6-"Advanced Spark Programming":
+
+***************************************************************************************************
+****************************************CHAPTER-SEVEN**********************************************
+***************************************************************************************************
+
+CHP-7-"Running on a Cluster":
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+				
