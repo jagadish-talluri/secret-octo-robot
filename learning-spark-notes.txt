@@ -1617,12 +1617,190 @@ CHP-6-"Advanced Spark Programming":
 
 CHP-7-"Running on a Cluster":
 
+	One benefit of writing applications on Spark is the ability to scale computation by adding more machines and running in cluster mode.
+
+Spark Runtime Architecture:
+
+	In distributed mode, Spark uses a master/slave architecture with one central coordinator and many distributed workers. 
+	The central coordinator is called the driver. 
+	The driver communicates with a potentially large number of distributed workers called executors. 
+	The driver runs in its own Java process and each executor is a separate Java process. 
+	A driver and its executors are together termed a Spark application.
+	
+	A Spark application is launched on a set of machines using an external service called a cluster manager. 
+	As noted, Spark is packaged with a built-in cluster manager called the Standalone cluster manager. 
+	Spark also works with Hadoop YARN and Apache Mesos, two popular open source cluster managers.
+
+	The Driver:
+	
+		The driver is the process where the main() method of your program runs.
+		It is the process running the user code that creates a SparkContext, creates RDDs, and performs transformations and actions.
+		Once the driver terminates, the application is finished.
+			When you launch a Spark shell, you’ve created a driver program.
+		
+		When the driver runs, it performs two duties:
+			(1) Converting a user program into tasks
+			(2) Scheduling tasks on executors
+			
+		Converting a user program into tasks:
+			A Spark program implicitly creates a logical directed acyclic graph (DAG) of operations.
+			When the driver runs, it converts this logical graph into a physical execution plan.
+			Spark performs several optimizations, such as “pipelining” map transformations
+				together to merge them, and converts the execution graph into a set of stages.
+			Each stage, in turn, consists of multiple tasks. 
+			The tasks are bundled up and prepared to be sent to the cluster. 
+			Tasks are the smallest unit of work in Spark
+			A typical user program can launch hundreds or thousands of individual tasks.
+			
+		Scheduling tasks on executors:
+			Given a physical execution plan, 
+				a Spark driver must coordinate the scheduling of individual tasks on executors.
+			When executors are started they register themselves with the driver, 
+				so it has a complete view of the application’s executors at all times.
+			Each executor represents a process capable of running tasks and storing RDD data.
+			
+			The Spark driver will look at the current set of executors and try to schedule each
+				task in an appropriate location, based on data placement
+			The driver also tracks the location of cached data and uses it to schedule future tasks that access that data.
+			
+			The driver exposes information about the running Spark application through a
+				web interface, which by default is available at port 4040.
+					http://localhost:4040
+					
+	The Executor:
+	
+		Spark executors are worker processes responsible for running the individual tasks in a given Spark job.
+		Executors are launched once at the beginning of a Spark application. Spark applications can continue if executors fail.
+		
+		Executors have two roles.
+			First, they run the tasks that make up the application and return results to the driver.
+			Second, they provide "in-memory storage" for RDDs that are cached by user programs, 
+				through a service called the "Block Manager" that lives within each executor.
+		Because RDDs are cached directly inside of executors, tasks can run alongside the cached data.
+		
+		In LOCAL mode, the Spark driver runs along with an executor in the same Java process. 
+			This is a special case; executors typically each run in a dedicated process.
+
+	Cluster Manager:
+		
+		Spark depends on a cluster manager to launch executors and, in certain cases, to launch the driver.
+		The cluster manager is a pluggable component in Spark. (so, easy for others too, like mesos or yarn)
+		
+		Spark’s documentation consistently uses the terms driver and executor 	
+			when describing the processes that execute each Spark application.
+		The terms master and worker are used to describe the centralized 
+			and distributed portions of the cluster manager.
+		Spark can run both drivers and executors on the YARN worker nodes.
+		
+	Launching a Program:
+	
+		No matter which cluster manager you use, Spark provides a single script you can use
+			to submit your program to it called spark-submit.
+		Through various options, sparksubmit can connect to different cluster managers 
+			and control how many resources your application gets.
+		
+	Summary
+
+		To summarize the concepts in this section, let’s walk through the exact steps that
+			occur when you run a Spark application on a cluster:
+		1. The user submits an application using spark-submit.
+		2. spark-submit launches the driver program and invokes the main() method specified by the user.
+		3. The driver program contacts the cluster manager to ask for resources to launch executors.
+		4. The cluster manager launches executors on behalf of the driver program.
+		5. The driver process runs through the user application. Based on the RDD actions
+			and transformations in the program, the driver sends work to executors in the form of tasks.
+		6. Tasks are run on executor processes to compute and save results.
+		7. If the driver’s main() method exits or it calls SparkContext.stop(), it will terminate
+			the executors and release resources from the cluster manager.
+			
+	$ bin/spark-submit my_script.py
+	
+		When spark-submit is called with nothing but the name of a script or JAR, 
+			it simply runs the supplied Spark program locally.
+	
+	$ bin/spark-submit --master spark://host:7077 --executor-memory 10g my_script.py
+	
+		spark:// URL means a cluster using Spark’s Standalone mode
+		mesos:// -- for mesos
+		yarn	 -- for yarn
+		local 	 -- local
+		local[n] -- local with N cores
+		local[*] -- local with available cores in that machine
+		
+		--executor-memory
+		--driver-memory
+		The amount of memory to use for executors/drivers, in bytes. 
+		Suffixes can be used to specify larger quantities such as “512m” (512 megabytes) or “15g” (15 gigabytes).
+
+		examples:
+		
+		# Submitting a Java application to Standalone cluster mode
+
+			$ ./bin/spark-submit \
+			--master spark://hostname:7077 \
+			--deploy-mode cluster \
+			--class com.databricks.examples.SparkExample \
+			--name "Example Program" \
+			--jars dep1.jar,dep2.jar,dep3.jar \
+			--total-executor-cores 300 \
+			--executor-memory 10g \
+			myApp.jar "options" "to your application" "go here"
+
+		# Submitting a Python application in YARN client mode
+
+			$ export HADOP_CONF_DIR=/opt/hadoop/conf
+			$ ./bin/spark-submit \
+			--master yarn \
+			--py-files somelib-1.2.egg,otherlib-4.4.zip,other-file.py \
+			--deploy-mode client \
+			--name "Example Program" \
+			--queue exampleQueue \
+			--num-executors 40 \
+			--executor-memory 10g \
+			my_script.py "options" "to your application" "go here"
+
+	it’s common practice to rely on a build tool to produce a single large JAR containing 
+		the entire transitive dependency graph of an application. This is often called an 
+		"uber JAR" or an "assembly JAR", and most Java or Scala build tools can produce this type of artifact.
+		
+	The most popular build tools for Java and Scala are Maven and sbt (Scala build tool).
+		Either tool can be used with either language, but Maven is more often used for Java
+		projects and sbt for Scala projects.
+
+	Spark is marked as "provided" to ensure that Spark is never packaged with the application artifacts.
+	The build includes the maven-shadeplugin to create an uber JAR containing all of its dependencies. 
+		You enable this by asking Maven to execute the "shade" goal of the plug-in every time a "package" phase occurs.
+	
+	Dependency Conflicts:
+		use differenct namespaces (or) use same version jar as spark uses (or) use shading
+		
+		
+Scheduling Within and Between Spark Applications:
+	
+	Many clusters are shared between multiple users. Shared environments have the challenge of scheduling
+	For scheduling in multitenant clusters, Spark primarily relies on the cluster manager 
+		to share resources between Spark applications.
+	
 
 
 
 
 
 
+
+
+
+				
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 
 
 
