@@ -1,0 +1,70 @@
+-- extra details
+
+-- use `hive -v` to start in verbose mode, which echos the given command, NOT A GREAT VALUE
+
+-- use put, to read from stdin, it writes/stream line-by-line, new-line-character is like commit
+
+$ hadoop fs -put - /emp.txt
+write here
+write here too
+now press ctrl+c to exit
+
+-- if copy command has multiple files, then destination should be DIRECTORY
+
+-- use -copyFromLocal -f to OVERWRITE the file in HDFS, NOT WORKING, will try later
+
+-- use COUNT command in HDFS, for dir_count file_count size_count, see documentation for more info
+
+$ hadoop fs -count /
+
+-- how much space is used by HIVE directory or any directory?
+
+$ hadoop fs -du -s -h /user/hive/warehouse/demo.db
+
+-- to empty trash
+
+$ hadoop fs -expunge
+
+-- Default file permissions are 666 in HDFS
+
+-- Use ‘-setrep’ command to change replication factor of a file
+
+$ hadoop fs -setrep -w 2 apache_hadoop/sample.txt
+
+-- Run a cluster balancing utility, $ hadoop balancer
+
+-- Run a DFS filesystem checking utility, $ hadoop fsck /
+
+-- union type, a datatype in hive, hetrogeneous , check tutorials point
+
+-- external table, needs a directory as location
+
+-- below commands didnt work, need to look again
+
+CREATE TABLE union_test(foo UNIONTYPE<int, double, array<string>, struct<a:int,b:string>>);
+
+LOAD DATA INPATH '/unionType.txt' INTO TABLE union_test;
+
+-- below query can create a union_type, need to look again
+
+SELECT create_union(0, key), create_union(if(key<100, 0, 1), 2.0, value), create_union(1, "a", struct(2, "b")) FROM src LIMIT 2;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

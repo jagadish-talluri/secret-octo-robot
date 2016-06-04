@@ -1,0 +1,248 @@
+-- First, write the command here, then paste it in the console
+-- Second, use CAPS for KEYWORDS
+-- semi colon is must
+
+-- create database and use it
+
+SHOW DATABASES;
+
+CREATE DATABASE demo;
+
+SHOW DATABASES;
+
+USE demo;
+
+-- observe parallely what happens to HDFS
+
+hadoop fs -ls /user/hive/warehouse/demo.db
+
+-- create table, internal
+
+CREATE TABLE IF NOT EXISTS student
+( name STRING COMMENT 'Student Name'
+, percentage FLOAT
+, grade STRING)
+ROW FORMAT DELIMITED 
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+SHOW TABLES;
+
+SHOW TABLES LIKE 's*';
+
+-- observe HDFS, a new directory with name 'student' got created
+
+-----------student.txt
+AAA,60.5,I
+BBB,70.5,I
+CCC,80.5,I
+DDD,50.5,II
+EEE,55.5,II
+
+LOAD DATA LOCAL INPATH '/home/sherlock-holmes/Desktop/student.txt' INTO TABLE student;
+
+-- observe HDFS, LOAD is purely a copy/move operation
+
+SELECT * FROM student;
+
+SELECT COUNT(*) FROM student;
+
+-- count, launches an MR job
+
+--------------emp.txt
+John Doe,100000.0, Mary Smith:Todd Jones,Federal Taxes!.2:StateTaxes!.05:Insurance!.1
+Jose Dove,100000.0,Mary Smith:Todd Jones,Federal Taxes!.2:StateTaxes!.06:Insurance!.1
+
+-- create in HDFS from STDIN
+
+$ hadoop fs -put - /emp.txt
+
+-- create table, complex datatype
+
+CREATE TABLE employee
+( name STRING
+, salary FLOAT
+, sub ARRAY<STRING>
+, deductions MAP<STRING, FLOAT>)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+COLLECTION ITEMS TERMINATED BY ':'
+MAP KEYS TERMINATED BY '!'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+DESC employee;
+
+-- hive deletes the file, when it is loaded from HDFS
+
+LOAD DATA INPATH '/emp.txt' INTO TABLE employee;
+
+SELECT * FROM employee;
+
+-- observe, array appears like [value1, value2, ..], map appears like {k1:v1, k2:v2, ..}
+
+SELECT name, sub FROM employee;
+
+SELECT name, deductions FROM employee;
+
+SELECT name, deductions['Federal Taxes'] FROM employee;
+
+-- observe, we can even fetch map values only by keys, output only gives values to those columns
+
+-------------------emploc.txt
+1001,AAA,20000,TVM
+1002,BBB,30000,TVM
+1003,CCC,50000,BNG
+
+CREATE TABLE emploc
+( empno INT
+, empname STRING
+, empsal INT
+, emploc STRING)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE;
+
+LOAD DATA INPATH '/emploc.txt' INTO TABLE emploc;
+
+SELECT e.empname, e.emploc
+FROM emploc e
+ORDER BY e.empname DESC;
+
+----------empsal.txt
+1,abc,40000,a$b$c,pf#500$epf#200,hyd$ap$500001
+2,def,30000,d$f,pf#500,bng$ka$600056
+
+CREATE EXTERNAL TABLE salary
+( id INT
+, name STRING
+, salary FLOAT
+, skills ARRAY<STRING>
+, deductions MAP<STRING,FLOAT>
+, address STRUCT<city:STRING,state:STRING,pin:BIGINT>
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+COLLECTION ITEMS TERMINATED BY '$'
+MAP KEYS TERMINATED BY '#'
+LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION '/dir'
+;
+
+-- observe, location must be DIRECTORY, STRUCT must have specific NAMES
+
+SELECT deductions["pf"], deductions["epf"] FROM salary;
+
+-- observe, the quotes inside the brackets, and same column in 2 places
+
+-- variable substitution, start hive with -d option, no spaces around '=', -d (or) --define (or) --hivevar
+
+$ hive -d user_table=salary
+
+SELECT * FROM ${user_table};
+
+-- equivalent to SELECT * FROM salary;
+
+-- create a 'view' from 'employee' table, using its MAP column, converted to a table
+
+CREATE VIEW emp_view AS
+SELECT name
+, deductions["Federal Taxes"] as FederalTaxes
+, deductions["StateTaxes"] as StateTaxes
+, deductions["Insurance"] as Insurance
+FROM employee;
+
+-- observe, in 'desc extended emp_view', you will see table_type as virtual_view
+
+-- create index
+
+CREATE TABLE manager(id INT, name STRING);
+
+SHOW CREATE TABLE manager;
+
+-- observer, as we didnt give explicit ROW FORMAT, SERDE is taken
+
+ROW FORMAT SERDE 
+  'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' 
+
+-- DEFAULT SERDE is LazySimpleSerDe, How rows and columns are depicted?
+
+----serde_data.txt
+hi,hello,how,are,you
+are,you,doing,well
+
+-- test UNIONTYPE, need to comeback, FAILED
+
+CREATE TABLE union_check1
+( id INT
+, value UNIONTYPE<FLOAT,STRING>)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ","
+LINES TERMINATED BY "\n"
+STORED AS TEXTFILE;
+
+$ hadoop fs -put - /user/hive/warehouse/demo.db/union_check1/test.txt
+
+-------test.txt
+1,1
+2,2.0
+3,3
+4,4.0
+5,1234
+6,123456
+7,12.00
+8,0.08
+9,hello
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
