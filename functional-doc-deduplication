@@ -1,0 +1,53 @@
+Contents
+----------
+Data Deduplication:	3
+Data Validation:	3
+Data Availability:	3
+Data Boundary:	4
+Data-Type Accuracy:	4
+--------------------------------------------
+Data Deduplication:
+-------------------
+Data Deduplication is an important phase to validate the data and avoid the redundancy. It helps to get rid of the unwanted duplicates of data records available due to various number of reasons. It is a data cleansing step, which cleans the data in a way the duplicated are identified and handled well.
+
+In this phase, system reads the record and checks whether it is a duplicate or not. If it finds that the record is duplicate then it rejects it. Only valid records are allowed to pass through the further checks.
+
+In this way, we save the time by performing validations only on the relevant data and avoid doing it multiple time on the duplicates. 
+
+The duplication check can be done in a generic way based on the metadata provided in the configuration file. It can check for the redundancy at an entire record level or a specified column level.
+
+All the rejected records are sent to reject files with an appropriate error message.
+
+Post deduplication phase, system passes the records to Data Validation phase.
+
+Data Validation:
+----------------
+It is an important step to make sure that the data we have is passed through the rigorous test cycles before entering to the database. This ensures the reliability of data and solves the trust issues associated with it. In this phase we take care of multiple checks related to data entities per record.
+Our system reads the data record by record and grabs the fields column by column then passes them to the tests. And only the records which are valid are allowed to into tables.
+The Validation checks can be broadly classified into data availability, data boundaries, data-type accuracy as mentioned in the configuration files. These configuration files contains information related to the data properties.
+Further details on validation checks:
+
+Data Availability:
+1.	Check for Null values.
+In this test, system checks for Null values in the data record. Identifies the Null values and checks its compliance as per the configuration files. If the Null value is allowed for a field to be there then the system approves the field or else it rejects it.
+2.	Check for column count match.
+In this test, system checks to match the count of columns identified in the record with respect to the metadata configuration file. If the column count matches then system allows the record to be validated for individual fields or else it rejects the record for further validation.
+
+Data Boundary:
+1.	Check for Delimiter.
+In this test, system checks for delimiter character, which usually separates the columns. This value would by any character but we can find comma or pipe frequently. System is capable of handling and checking any delimiter as per the configuration file. If the delimiter character is valid then the system allows the record to be processed further or else it rejects it.
+Data-Type Accuracy:
+1.	Date Fields.
+In this test, system grabs the not null data value and checks it with the format provided by the configuration file. For example if the date value is “15-12-1985” and the date-format provided is “DD-MM-YYYY” then the date is considered valid. If the date is not in compliance with the date-format then the system rejects it.
+2.	Date Time Fields.
+In this test, system grabs the not null data value and checks it with the format provided by the configuration file. For example if the date value is “15-12-1985 00:00:00” and the date-format provided is “DD-MM-YYYY HH:MM:SS” then the date is considered valid. If the date is not in compliance with the date-format then the system rejects it.
+3.	Integer Fields.
+In this test, system grabs the not null data value and checks it whether it is integer or not. It checks for the exact numerical representation for that type. It also checks whether the value of Integer is in the range. For example if the value is “123”, it is considered valid. If the field value is not in compliance with the integer data-type then the system rejects it.
+4.	Float Fields.
+In this test, system grabs the not null data value and checks it whether it is float or not. It checks for the exact numerical representation for that type. It also checks whether the value of Float is in the range. For example if the value is “123.45”, it is considered valid. If the field value is not in compliance with the float data-type then the system rejects it.
+5.	String Fields. (Also known as Varchar in Databases).
+In this test, system grabs the not null data value and checks it whether it is float or not. It checks for the exact character representation for that type. It also checks whether the length of the String is in the given limit provided by configuration file. For example if the value is “hello”, it is considered valid only if the configuration file has data length as 5. If the field value is not in compliance with the configuration metadata then the system rejects it.
+
+All the reject records from all the different respective tests are sent to reject files with a very valuable appropriate error message.
+The error messages are designed in a way to get the idea of what went wrong instantly in a quick read.
+And after all, only the valid records are considered approved to be stored in the files and then they are used to as table data for further analysis.
