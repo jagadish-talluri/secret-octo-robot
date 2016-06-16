@@ -1,0 +1,19 @@
+Java-Eclipse-Debug:
+------------------
+
+F5 => step into
+F6 => step over
+F7 => step return
+
+Cntl + R => run to line
+
+Watch Expression => use Display window (like java scrap book)
+
+Alt + Shift + Up => use to select an expression gradually
+
+Java Exception Break Point(caught and uncaught)
+
+When running JUnit test, all exceptions are caught
+
+Cntl + Shift + D => popup display in debug
+
