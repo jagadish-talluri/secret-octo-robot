@@ -1,0 +1,26 @@
+-- Jagratha Charyalu
+
+1. Timout Session
+	-- session will time out in 60 seconds if there is no activity
+2. Kerberos Ticket
+	-- cannot access hdfs or hadoop without this ticket, valid for few hours, need to renew
+3. Service-id
+	-- a special user name with permissions to write the data
+4. pmrun
+	-- a special command works similar to "sudo"
+5. only vi
+	-- no other editor
+6. every connection needs authentication
+	-- all shells need authntication
+7. AD ID
+	-- LDAP authentication to main system
+8. Home Directory
+	-- need to have a home directory to do any task
+9. Firewall Punch
+	-- need to punch a firewall to enter in to a firewall zone, usually keeps for production
+10. AD Groups
+	-- Only the people in the proper group will able to see the data
+11. HDFS encryption
+	-- entire hdfs is encrypted so that, no intruder
+12. Password, not even stars
+	-- no visible stars for the password when we login
