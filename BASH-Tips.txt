@@ -1,0 +1,75 @@
+Amazing BASH/SHELL/LINUX/TERMINAL Tips:
+
+How to list exported variables or environment variables?
+$ env
+	
+How to list variables (not exported just setted)? [will output functions also]
+$ set
+
+How to list variables? only defined variables? (long way)
+$ ( set -o posix ; set ) >/tmp/variables.before
+$ source script
+$ ( set -o posix ; set ) >/tmp/variables.after
+$ diff /tmp/variables.before /tmp/variables.after
+$ rm /tmp/variables.before /tmp/variables.after
+
+or [simple one]
+$ ( set -o posix ; set ) | less
+
+for ksh [no posix here, use grep to filter]
+$ set | grep bm_*
+
+for mrch_aggregates params
+$ set | grep -E 't_name|queue_name|db_name'
+
+How to use OR in grep? By using -E switch.
+$ grep -E 'abba|dabba|jabba'
+
+By default piping is from left to right.[display the hello.txt file THEN find lines have 'friend' word THEN put those lines in a vi buffer]
+$ cat hello.txt | grep friend | vi
+
+How to use a command and a file? left to right?
+$ cat hello.txt
+$ vi hello.txt
+$ grep friend hello.txt
+
+How to use a pattern/command in the place of file-param-name?
+Ans: use backticks to put the command [file-set: list files with names starts from PHAMDA in descend order of time THEN take first 7 files]
+use the file-set as an input to the grep command
+$ grep 'numRows' `ls -1t PHAMDA* | head -n 7`
+
+How to enable colors on the grep filtered keyword? [-small-L as switch as general]
+$ grep --color 'numRows' `ls -1t PHAMDA* | head -n 7`
+
+How to open the file-set in vi? [-one as swtich]
+Ans: filename in every line
+$ vi `ls -1t PHAMDA* | head -n 7`
+
+How to execute many shell scripts sequencially? [-x for log, hello is shell script name]
+$ ksh -x hello; ksh -x hello1; ksh -x hello2
+
+How to list the files in across manner?
+Across: ls -x
+1	2	3	4
+5	6	7	8
+Normal: ls
+1	3	5	7
+2	4	6	8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
