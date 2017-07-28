@@ -1,0 +1,23 @@
+Resume:
+-------
+
+Cheif Data Officer
+Cheif Data Scientist
+
+Behaviour
+---------
+DataBase Agnostic
+Programming Language Agnostic
+Programming Style Agnostic
+Tool Agnostic
+Utility Agnostic
+Domain Agnostic
+
+Fun Facts:
+----------
+350 million records per day
+12 peta bytes of data
+1000 node cluster 
+
+timeline style -> career growth
+quiver or fabric -> for skills or tools
