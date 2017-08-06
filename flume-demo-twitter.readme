@@ -1,0 +1,43 @@
+Read Me [twitter]:
+------------------
+
+Download JAR:
+-------------
+
+flume-sources-1.0-SNAPSHOT.jar
+
+download-url: https://www.dropbox.com/s/ae2n9hj60fjicbh/flume-sources-1.0-SNAPSHOT.jar
+
+
+conf file [twitter-to-hdfs.conf]:
+---------------------------------
+
+TwitterAgent.sources= Twitter
+TwitterAgent.channels= MemChannel
+TwitterAgent.sinks=MyTerminal
+TwitterAgent.sources.Twitter.type = com.cloudera.flume.source.TwitterSource
+TwitterAgent.sources.Twitter.channels=MemChannel
+
+TwitterAgent.sources.Twitter.consumerKey=qRfrVX7K9BdgGonSYderCqqyw
+TwitterAgent.sources.Twitter.consumerSecret=s5UAXWAkTKice2MGpj8HG8iYjDtI0pgN4ICEOjH21KeuUI2u3N
+TwitterAgent.sources.Twitter.accessToken=115944026-WeYrwdfaSCtavKGgIromVglAPvODeEDQa8u7Mlib
+TwitterAgent.sources.Twitter.accessTokenSecret=GYzTYMeDYWB3PqfRv5i5Ev6dItLl4yGeJGMDUUKghhoHk
+
+TwitterAgent.sources.Twitter.keywords= hadoop,election,sports, cricket,Big data
+
+TwitterAgent.channels.MemChannel.type=memory
+
+TwitterAgent.sinks.MyTerminal.type = hdfs
+TwitterAgent.sinks.MyTerminal.channel= MemChannel
+
+TwitterAgent.sinks.MyTerminal.hdfs.path=hdfs://localhost:8020/user/flume/jagadish_tweets
+TwitterAgent.sinks.MyTerminal.hdfs.fileType=DataStream
+TwitterAgent.sinks.MyTerminal.hdfs.writeformat=Text
+
+Commands:
+---------
+
+$ ./flume-ng agent -n TwitterAgent -f ~/jagadish_t/flume-conf/twitter-to-hdfs.conf
+
+$ ./flume-ng agent -n TwitterAgent -c conf -f ~/jagadish_t/flume-conf/twitter-to-hdfs.conf
+
