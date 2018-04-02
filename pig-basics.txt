@@ -1,0 +1,138 @@
+Introduction:
+------------
+Bag == Table == {}
+Tuple == Record == ()
+Field == Field == ,
+Relation == Bag Name == Variable
+
+First LOAD the DATA:
+--------------------
+a = LOAD '/etc/passwd';
+b = LOAD '/etc/passwd' as (line);
+c = LOAD '/etc/passwd' as (line:chararray);
+d = LOAD '/etc/passwd' USING PigStorage(':') as (c1:chararray,c2:chararray,c3:chararray,c4:chararray,c5:chararray,c6:chararray,c7:chararray);
+e = d;
+
+Last STORE the DATA:
+--------------------
+STORE a into 'aOut';
+STORE d into 'dOut' USING PigStorage('-');
+
+Now Data Operations:
+--------------------
+
+-- SQL SELECT -- does both `projection` and `printing`
+-- PIG FOREACH -- only projects
+-- PIG DUMP -- only prints to console
+
+toSelect = FOREACH c GENEARATE line;
+DUMP toSelect;
+
+toSelectA = FOREACH d GENERATE c1,c6,c7;
+toSelectB = FOREACH d GENERATE $0,$5,$6;
+toSelectC = FOREACH d GENERATE c1.. ;
+toSelectD = FOREACH d GENERATE ..c7 ;
+toSelectE = FOREACH d GENERATE c2..c6 ;
+toSelectF = FOREACH d GENERATE * ;
+
+-- PIG FILTER -- only filters
+
+toFilter = FILTER d BY c7 == '/bin/sh'; 
+
+-- PIG ORDER BY
+
+toOrder = ORDER d BY c1 DESC;
+
+-- PIG GROUP BY
+
+toGroup = GROUP d BY c7;
+
+-- PIG DISTINCT -- only full records
+
+toDistinct = DISTINCT d;
+
+-- PIG JOIN
+
+toJoin = JOIN toSelectA BY c1, toSelectB BY $0;
+
+-- PIG UNION
+
+toUnion = UNION a,b;
+
+-- PIG LIMIT
+
+toLimit = LIMIT a 5;
+
+-- PIG CROSS m*n
+
+onlySH = filter d by c7 == '/bin/sh';
+onlyBASH = filter d by c7 == '/bin/bash';
+bothCROSS = CROSS onlySH, onlyBASH;
+
+-- PIG SPLIT
+
+SPLIT d INTO onlySH1 IF c7 == '/bin/sh', onlyBASH1 IF c7 == '/bin/bash' 
+
+
+-- PIG COGROUP -- like `group by` on 2 relations (first join, second group) `tuples from A` and `tuples from B` of a GROUP form a SET
+
+toFilterA = FILTER d BY (c7 == '/bin/bash' or c7 == '/bin/sh') ;
+toA = FOREACH toFilterA GENERATE c1,c7;
+toFilterB = FILTER d BY (c7 == '/bin/false' or c7 == '/bin/sh') ;
+toB = FOREACH toFilterB GENERATE c1,c7;
+
+toCogroup = COGROUP toA BY c7, toB BY c7;
+
+-- PIG NESTED FOREACH -- this is not basic :)
+-- How many users are there in a particular bag for a group/category?
+
+toGroupCnt = FOREACH toCogroup {
+				usersInA = toA.c1;
+				usersInB = toB.c1;				
+				GENERATE group, COUNT(usersInA), COUNT(usersInB);
+				};
+
+toGroupCnt = FOREACH toCogroup GENERATE group, COUNT(toA.c1), COUNT(toB.c1);
+toGroupCnt = FOREACH toCogroup GENERATE group, COUNT(toA), COUNT(toB);
+
+-- Special Projections
+
+newOne = FOREACH toCogroup GENERATE group, toA.c1;
+
+How to do Word Count in PIG? -- this is not BASIC :)
+----------------------------
+
+CODE:
+----
+inputData = LOAD 'pig-wc-input' as (line);
+tokenizedData = FOREACH inputData GENERATE TOKENIZE(line);
+wordsData = FOREACH tokenizedData GENERATE FLATTEN(bag_of_tokenTuples_from_line) as word;
+groupedData = GROUP wordsData BY word;
+wordCountData = FOREACH groupedData GENERATE group, COUNT(wordsData);
+
+STORE wordCountData as 'outputData';
+
+EXPLANATION:
+-----------
+Use, `dump` and `describe` commands to observe every instruction.
+
+TOKENIZE -- converts each line into a bag of words => results in a lot of bags each contains tuples
+FLATTEN -- converts all bags into one bag containing all words as tuples
+SQL GROUP -- does both `grouping` and `aggregating`
+PIG GROUP -- only groups the data
+
+RECODE:
+------
+inputData = LOAD 'pig-wc-input' as (line);
+wordsData = FOREACH inputData GENERATE FLATTEN(TOKENIZE(line)) as word;
+groupedData = GROUP wordsData BY word;
+wordCountData = FOREACH groupedData GENERATE group, COUNT(wordsData);
+
+How to do PARALLEL operations in PIG? -- only reducer parallelism in control (available in cluster)
+-------------------------------------
+
+REDUCE PHASE NEEDED IN -- group, order, distinct, join, limit, cogroup
+
+groupedDataPR = GROUP wordsData BY word PARALLEL 4;
+wordCountDataPR = FOREACH groupedDataPR GENERATE group, COUNT(wordsData);
+
