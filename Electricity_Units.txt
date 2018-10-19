@@ -1,0 +1,121 @@
+Basics Of Day to Day Electronic Products:
+-----------------------------------------
+
+Question: Which charger to buy in the market if I need fast charging capability?
+
+Answer: You need a charger which has high watt score. For example, if you got 5W, 12W and 20W charger, go for 20W for fast charging.
+
+OnePlus Dash => 5V x 4A == 20W
+iPhone Default => 5V x 1A == 5W
+Kindle Charger => 5V x 1A == 5W
+Bose Charger => 5V x 1.6A == 8W
+Lenovo Charger => 5.2V x 2A == 10.2 ~= 10W
+
+Power Bank => 5.1V x 3.6A == 18W
+
+Battery => Stores Charge => measured in => MAH (milli-amp-hour) like 4000 mah
+Bucket => Stores Water => measured in => Liters (volume) like 10 liters
+
+so a 25L bucket => has a capacity to store 25L water
+
+moving electrons => called => electricity or current
+still electrons => called => charge
+
+Charger => Fills Charge in battery
+Hose => Fills Water in bucket
+
+P = I x V --> notation
+
+Power = Current x Voltage --> type
+
+Watt = Amp x Volt --> units
+
+ex: 1100 Watts hair dryer, can be operated
+	a. Europe => 5A x 220V => 1100 watts
+	b. USA => 10A x 110V => 1100 watts
+This hair dryer needs 1100 watts to be functional.
+How much current is running in the circute 5A or 10A based on the country.
+
+forget; power vs energy
+
+We get our bills with different units:
+
+Electricity Bill => 5 units => 5 KWH (kilo-watt-hour)
+Battery => 12 Volts
+Hair Dryer => 1100 Watts
+Vaccum Cleaner => 15 Amps of sucking power
+
+Electricity To Flow => and => Work to be happend
+
+Electrical Pressure => called => voltage
+
+water flow from high altitude to low altitude: difference in height leads to water moving from high to low
+current flow from <> : difference in (potential difference or voltage) leads to electrons moving from one point to other point
+
+Appliances Circutes are designed to accept a certain amount of volts inside or else wont work.
+
+WH or KWH => unit of energy, tells how much energy is consumed per chunk of time
+(just because it has hour; it is not unit of time :-) )
+
+Ampere => a bunch of electrons flowing through a certain point per second.
+			(so we can say speed of electron flow) :: bunch = 6.24 x 10^18
+AmpHour => a measure of capacity; how much charge a battery can hold
+
+2AH -> we can draw 2A per 1 hour
+2AH -> we can draw 1A per 2 hour
+2AH -> we can draw 4A per half hour
+
+battery life (hours) = capacity(AH)/Load(A);
+charge = stored energy
+
+Volts x Amp-Hours = Watt-Hour
+
+ex: 2 batteries, both have same 1200 mah capacity
+	a. small battery => 2000mah of 1.2 v 
+		2AH x 1.2 V = 2.4 WH
+	b. big battery => 2000mah of 9.6 v 
+		2AH x 9.6 V = 19.2 WH
+
+C rating => informal way of telling how much current it can deliver safely
+	
+efficiency of a battery is a whole differnt story:
+we want batteries:
+	1. to charge fast
+	2. to discharge slow
+	3. not to heat up in fast charging
+	4. not to heat up in fast discharging
+	5. longer life
+	6. many battery cycles
+	7. 
+
+Q: How to choose a power bank?
+
+YouTube Links:
+--------------
+
+Volts, Amps, and Watts Explained - tech quik
+https://www.youtube.com/watch?v=mvuHsu8S6v8
+
+Battery amp-hour, watt-hour and C rating tutorial
+https://www.youtube.com/watch?v=cxkVxi9P0EA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
