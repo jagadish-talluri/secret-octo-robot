@@ -1,0 +1,202 @@
+Mydbops Database Meetup - Jan 2019:
+-----------------------------------
+
+InnoDB features:
+
+Introduced => 1995 => Finland => Org => Innobase
+
+Become as Default storage => 2010 => Mysql 5.5
+
+JSON support and Separate UNDO LOG
+
+Architecture:
+-------------
+
+Tablespace => Segment => Extent => 64 Pages => 16 KB (table or index any)
+
+A page contains either a full records, many records or partial record. For blobs it had pointers
+
+InnoDB Buffer Pool:
+-------------------
+
+InnoDB Change Buffer:
+
+B+ Tree writes are buffered
+
+InnoDB Adaptive Hash Index (fasten the access inside buffer pool)
+
+InnoDB Log Buffer
+
+InnoDB transaction commit from Log Buffer => 3 options
+	1 => save per commit
+	2 => save per second, data reaches OS
+	0 => save per second, data not yet reached OS
+
+bigger log file => crash recovery may time more time
+
+PMM => percona monitoring tool with graphs
+
+InnoDB Flush method: FSYNC (default), O_Direct
+
+Isolation Level => higher isolation level leads to locking situation
+	preffered is read commited.
+
+NO MyISAM tables in 8.0?
+	Yes, innoDB will do the faster selects
+
+Why counts are different in Innodb?
+	In 8.0, the counts are good, persistent
+
+In terms of GB, what is the max size I can keep in InnoDB, any parameters?
+	=> a DB of size 160 TB
+	=> a table of size 22 TB
+
+In terms of Transactions Per Second => any maximum identified, test
+	=> 60,000 and can be scaled also
+
+What do you mean by 1000s of servers?
+	=> There are 100s of clusters resulting in 1000s of servers
+	=> big cluster in tesla has 20 nodes init
+	=> always master for writes; and slaves for reads
+	=> clusters are designed for different applications (one for one application)
+	=> data is not distributed; logins/availability is distributed (share the load)
+
+Some comparision with AWS RDS (regarding IOps)
+
+Tesla: - Santhinesh, 12 Yrs Exp
+------
+
+Gtid: (global transaction identifier)
+-----
+
+1000 servers => 5 DBAs
+
+MySQL => Still evolving even after Oracle take over
+
+Each transaction has as GTID, you can find that in BinLog if it is enabled.
+
+GTID = server_uuid:transaction_id
+
+is reliable and powerful has been in use for 3 years at tesla.
+
+mysql> show binary logs;
+
+mysql> show global variables like '%gtid_purged%';
+
+Anything below 5.6 Version of mysql is outdated.
+
+Limitation: 
+	cannot do => create table .. select (it must be 2 transactions with GTID, query fails)
+		or
+			=> create temporary table
+
+in mysqld file: (and require a restart)
+gtid_mode = ON
+enforce-gtid-consistency = ON
+
+to do this => one hour downtime is sufficient (including rollback if any issues)
+
+GTID MODES:
+
+OFF
+OFF_PERMISSIVE
+ON_PERMISSIVE
+ON
+
+Follow the above order to enable of disable ; OFF => .. => .. => ON
+
+3 Nodes:
+	1 => Reporting
+	2 => Backups
+	3 => Application writes
+
+mysql> select gtid_subtract(gtid_1,gtid_2);
+gtid_1 => master_gtid_purged
+gtid_2 => slave_gtid_executed
+
+mysqlslavetrx => can be used => injecting single GTIDs set/sets
+
+Use PT table checksum for master/slave inconsistencies.
+
+== MySQL Performance Schema: (Team from ORACLE)
+----------------------------
+From 5.5 => has performance schema with performance schema storage handler
+
+Instruments: like file hierarchy from generic to specific (left to right)
+------------
+wait/io/file/myisam/logstatement/sql/select
+
+100+ tables and 
+1200+ instruments in 8.0
+
+table => setup_instruments
+	configurable at runtime
+
+table => statistics tables 
+			=> setup tables
+			=> event tables
+			=> instance tables
+			=> lock tables
+			=> connection tables
+			=> replication summary tables
+			=> variables tables
+			=> MISC tables (thread ids and counts)
+			=> Summary tables
+
+Use Cases:
+
+mysql> update performance_schema.setup_instruments set ENABLED = 'YES', TIMED = 'YES';
+
+wonderful insights => we can know what is happening in the db server (at picosecond level)
+
+DIGEST => normalized form of queries
+
+mysql> select <snip> from events_transactions_current;
+
+Statement Histogram
+
+Custom Performance Tables: pfs_plugin_table
+
+==Mongo DB:
+-----------
+
+Enterprise Only:
+	- kerberos and LDAP Authentication and Authorizaton
+	- Auditing
+	- Log Redactin (mask the sensitive data from logs)
+	- Hadoop and Spark connector
+	- BI connector
+
+Backups:
+	MGOB => outside product
+
+Encryption:
+	can be done at OS level using LUKS
+	AWS or GCloud they have their own encryptions
+	Data Streaming, can be done with "Change Stream"
+
+Percona Server For MongoDB
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
